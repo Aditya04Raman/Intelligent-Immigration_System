@@ -1,0 +1,10 @@
+﻿stateDiagram-v2
+  [*] --> Step1
+  Step1 --> Step2: Continue
+  Step2 --> Step1: Back
+  Step2 --> Step3: Continue
+  Step3 --> Step2: Back
+  Step3 --> Generated: Generate Plan
+  Generated --> Generated: Export or Print or Save
+  Generated --> Step1: Edit Inputs
+  Generated --> [*]

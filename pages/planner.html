@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Immigration Planner — ImmigrationIQ</title>
+<link rel="stylesheet" href="../css/global.css"/>
+<style>
+:root {
+  --gold:#A8FF2E;
+  --gold-lt:#C8FF71;
+  --gold-dk:#5B8A11;
+  --teal:#00E2C5;
+  --teal-lt:#6DFFE5;
+}
+#planner-hero { min-height:52vh; display:flex; align-items:center; padding:140px 60px 80px; position:relative; overflow:hidden; background:radial-gradient(ellipse at 62% 38%,rgba(0,226,197,.18),transparent 62%),radial-gradient(ellipse at 20% 70%,rgba(168,255,46,.11),transparent 58%),var(--navy); }
+.planner-wrap { max-width:1320px; margin:0 auto; width:100%; display:grid; grid-template-columns:1fr 1fr; gap:80px; align-items:start; }
+.planner-form-card { background:var(--card); border:1px solid var(--border2); border-radius:22px; padding:48px; position:relative; overflow:hidden; }
+.planner-form-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg,var(--teal),var(--gold)); }
+.form-steps { display:flex; gap:0; margin-bottom:40px; border:1px solid var(--border2); border-radius:10px; overflow:hidden; }
+.form-step-btn { flex:1; padding:12px 8px; font-size:.75rem; letter-spacing:.07em; text-transform:uppercase; font-family:var(--ff-display); font-weight:600; color:var(--muted); border-right:1px solid var(--border2); transition:all .25s; }
+.form-step-btn:last-child { border-right:none; }
+.form-step-btn.active { background:rgba(212,168,67,.12); color:var(--gold); }
+.form-step-btn.done { background:rgba(9,184,181,.08); color:var(--teal); }
+.form-row { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+.step-panel { display:none; }
+.step-panel.active { display:block; animation:fadeIn .3s ease; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:none} }
+.submit-btn { width:100%; padding:16px; background:var(--gold); color:var(--deep); border:none; border-radius:10px; font-family:var(--ff-display); font-weight:800; font-size:1rem; letter-spacing:.02em; cursor:pointer; transition:all .3s; margin-top:8px; }
+.submit-btn:hover { background:var(--gold-lt); box-shadow:0 8px 32px rgba(212,168,67,.4); transform:translateY(-1px); }
+.nav-btns { display:flex; gap:12px; margin-top:24px; }
+.btn-next { flex:1; padding:14px; background:var(--gold); color:var(--deep); border:none; border-radius:9px; font-family:var(--ff-display); font-weight:700; cursor:pointer; transition:all .25s; }
+.btn-next:hover { background:var(--gold-lt); }
+.btn-prev { padding:14px 22px; border:1.5px solid var(--border2); color:var(--muted); border-radius:9px; font-family:var(--ff-display); font-weight:600; cursor:pointer; transition:all .25s; }
+.btn-prev:hover { color:var(--white); border-color:rgba(255,255,255,.2); }
+
+/* result side */
+.result-side { position:sticky; top:100px; }
+.result-preview { background:var(--card); border:1px solid var(--border2); border-radius:22px; padding:36px; min-height:400px; }
+.result-empty { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:360px; text-align:center; gap:14px; }
+.result-empty-icon { font-size:3.5rem; opacity:.4; }
+.progress-steps { display:flex; flex-direction:column; gap:12px; margin-top:28px; }
+.progress-step { display:flex; gap:12px; align-items:center; padding:12px 16px; border-radius:10px; border:1px solid; font-size:.82rem; transition:all .3s; }
+.pstep-done { border-color:rgba(16,185,129,.3); background:rgba(16,185,129,.06); }
+.pstep-active { border-color:rgba(212,168,67,.4); background:rgba(212,168,67,.08); }
+.pstep-pending { border-color:var(--border2); background:transparent; color:var(--muted); }
+.pstep-icon { width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:.75rem; flex-shrink:0; }
+
+/* GENERATED PLAN */
+#plan-result { display:none; padding:80px 60px; }
+.plan-header { display:grid; grid-template-columns:1fr auto; align-items:start; gap:32px; margin-bottom:48px; padding:36px; background:linear-gradient(135deg,rgba(212,168,67,.1),rgba(9,184,181,.05)); border:1px solid rgba(212,168,67,.25); border-radius:20px; }
+.plan-passport-flag { font-size:4rem; line-height:1; }
+.plan-dest-flag { font-size:4rem; line-height:1; }
+.plan-route { display:flex; align-items:center; gap:16px; }
+.plan-arrow { font-size:1.8rem; color:var(--gold); }
+.plan-grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+.export-bar { display:flex; gap:12px; justify-content:flex-end; margin-bottom:32px; }
+/* cost chart */
+.cost-bar { height:8px; border-radius:99px; background:var(--gold); margin-top:6px; }
+/* timeline */
+.tl-connector { width:2px; height:32px; background:linear-gradient(to bottom,var(--gold),transparent); margin-left:15px; }
+
+/* city safety heatmap */
+.heatmap-section { margin-top:20px; }
+.heatmap-head { display:flex; justify-content:space-between; align-items:flex-end; gap:14px; flex-wrap:wrap; margin-bottom:12px; }
+.heatmap-head p { font-size:.8rem; color:var(--muted); }
+.heatmap-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; }
+.heatmap-card { border:1px solid var(--border2); background:var(--card); border-radius:12px; padding:12px; }
+.heatmap-city { display:flex; justify-content:space-between; align-items:center; font-family:var(--ff-display); font-size:.82rem; margin-bottom:8px; }
+.heat-score { font-size:.72rem; border:1px solid; border-radius:99px; padding:3px 8px; }
+.heat-safe { color:#7ce7c4; border-color:rgba(16,185,129,.4); background:rgba(16,185,129,.11); }
+.heat-caution { color:#ffd694; border-color:rgba(245,158,11,.4); background:rgba(245,158,11,.11); }
+.heat-watch { color:#ffaeae; border-color:rgba(239,68,68,.4); background:rgba(239,68,68,.12); }
+.heat-bar-track { height:7px; border-radius:99px; background:rgba(255,255,255,.08); overflow:hidden; margin-bottom:8px; }
+.heat-bar-fill { height:100%; border-radius:99px; }
+.heat-note { font-size:.75rem; color:var(--muted); line-height:1.6; }
+@media(max-width:960px){ .planner-wrap{grid-template-columns:1fr;gap:40px;} .result-side{position:static;} #planner-hero{padding:120px 28px 60px;} #plan-result{padding:60px 28px;} .plan-grid{grid-template-columns:1fr;} .heatmap-grid{grid-template-columns:1fr;} .form-row{grid-template-columns:1fr;} }
+</style>
+</head>
+<body>
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursor-ring"></div>
+<nav class="navbar">
+  <a href="../index.html" class="navbar-logo">Immigration<span>IQ</span></a>
+  <div class="navbar-links">
+    <a href="../index.html">Home</a>
+    <a href="planner.html">Planner</a>
+    <a href="countries.html">Countries</a>
+    <a href="learn.html">Learn</a>
+    <a href="safety.html">Safety</a>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="login.html" class="navbar-auth-link" data-auth="guest">Log In</a>
+    <a href="signup.html" class="navbar-auth-link navbar-auth-signup" data-auth="guest">Sign Up</a>
+    <a href="dashboard.html" class="navbar-auth-user" data-auth="user" hidden><span class="navbar-user-avatar" data-auth-avatar>IQ</span><span class="navbar-user-name" data-auth-name>Account</span></a>
+    <button type="button" class="navbar-auth-logout" data-auth="user" data-auth-logout data-auth-redirect="../index.html" hidden>Log Out</button>
+    <a href="planner.html" class="navbar-cta">Get Started →</a>
+  </div>
+  <button class="hamburger"><span></span><span></span><span></span></button>
+</nav>
+
+<!-- HERO -->
+<section id="planner-hero">
+  <div style="max-width:1320px;margin:0 auto;width:100%;">
+    <span class="tag">Immigration Planner</span>
+    <h1 style="max-width:700px;">Build Your <span class="grad-gold">Personalized</span> Immigration Plan</h1>
+    <p class="lead" style="margin-top:20px;max-width:580px;">Answer a few questions about your passport, destination, and visa type. We'll generate a complete immigration preparation plan in seconds.</p>
+  </div>
+</section>
+
+<!-- PLANNER FORM -->
+<section class="section" style="padding-top:60px;background:var(--navy);">
+  <div class="planner-wrap container">
+    <!-- LEFT: Form -->
+    <div>
+      <div class="planner-form-card">
+        <div class="form-steps">
+          <button class="form-step-btn active" id="stepbtn-1">Personal</button>
+          <button class="form-step-btn" id="stepbtn-2">Immigration</button>
+          <button class="form-step-btn" id="stepbtn-3">Preferences</button>
+        </div>
+
+        <!-- Step 1 -->
+        <div class="step-panel active" id="step-1">
+          <h3 style="margin-bottom:6px;">Tell us about yourself</h3>
+          <p class="muted" style="font-size:.85rem;margin-bottom:28px;">Basic information to personalise your plan.</p>
+          <div style="display:flex;flex-direction:column;gap:20px;">
+            <div class="form-group"><label class="form-label">Full Name</label><input class="form-input" id="f-name" placeholder="e.g. Aditya Raman" /></div>
+            <div class="form-group"><label class="form-label">Passport Country</label>
+              <select class="form-select" id="f-passport">
+                <option value="">— Select your passport country —</option>
+                <option value="India">🇮🇳 India</option><option value="China">🇨🇳 China</option>
+                <option value="Brazil">🇧🇷 Brazil</option><option value="Philippines">🇵🇭 Philippines</option>
+                <option value="Mexico">🇲🇽 Mexico</option><option value="Nigeria">🇳🇬 Nigeria</option>
+                <option value="Pakistan">🇵🇰 Pakistan</option><option value="Bangladesh">🇧🇩 Bangladesh</option>
+                <option value="Other">🌍 Other</option>
+              </select>
+            </div>
+            <div class="form-group"><label class="form-label">Email</label><input class="form-input" id="f-email" type="email" placeholder="you@example.com" /></div>
+          </div>
+          <div class="nav-btns"><button class="btn-next" onclick="goStep(2)">Continue →</button></div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="step-panel" id="step-2">
+          <h3 style="margin-bottom:6px;">Immigration Details</h3>
+          <p class="muted" style="font-size:.85rem;margin-bottom:28px;">Where are you going and why?</p>
+          <div style="display:flex;flex-direction:column;gap:20px;">
+            <div class="form-group"><label class="form-label">Destination Country</label>
+              <select class="form-select" id="f-dest">
+                <option value="">— Select destination —</option>
+                <option value="United States">🇺🇸 United States</option>
+                <option value="Canada">🇨🇦 Canada</option>
+                <option value="United Kingdom">🇬🇧 United Kingdom</option>
+                <option value="Germany">🇩🇪 Germany</option>
+                <option value="Australia">🇦🇺 Australia</option>
+                <option value="Singapore">🇸🇬 Singapore</option>
+                <option value="UAE">🇦🇪 UAE / Dubai</option>
+                <option value="Japan">🇯🇵 Japan</option>
+              </select>
+            </div>
+            <div class="form-group"><label class="form-label">Purpose of Immigration</label>
+              <select class="form-select" id="f-purpose">
+                <option value="">— Select purpose —</option>
+                <option value="work">💼 Work / Employment</option>
+                <option value="study">🎓 Study / Education</option>
+                <option value="family">👨‍👩‍👧 Family Reunion</option>
+                <option value="pr">🏠 Permanent Residency</option>
+                <option value="tourist">✈️ Tourist / Short Stay</option>
+              </select>
+            </div>
+            <div class="form-group"><label class="form-label">Visa Type</label>
+              <select class="form-select" id="f-visa" disabled>
+                <option value="">— Select destination first —</option>
+              </select>
+            </div>
+            <div class="form-row">
+              <div class="form-group"><label class="form-label">Planned Move Date</label><input type="month" class="form-input" id="f-date" /></div>
+              <div class="form-group"><label class="form-label">Stay Duration</label>
+                <select class="form-select" id="f-duration">
+                  <option>Under 6 months</option><option>6–12 months</option>
+                  <option>1–3 years</option><option>3+ years / Permanent</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="nav-btns">
+            <button class="btn-prev" onclick="goStep(1)">← Back</button>
+            <button class="btn-next" onclick="goStep(3)">Continue →</button>
+          </div>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="step-panel" id="step-3">
+          <h3 style="margin-bottom:6px;">Your Preferences</h3>
+          <p class="muted" style="font-size:.85rem;margin-bottom:28px;">Help us tailor your plan further.</p>
+          <div style="display:flex;flex-direction:column;gap:20px;">
+            <div class="form-group"><label class="form-label">Preferred Language</label>
+              <select class="form-select" id="f-lang">
+                <option>English</option><option>Hindi</option><option>Spanish</option>
+                <option>Mandarin</option><option>Arabic</option><option>French</option>
+                <option>Portuguese</option><option>Urdu</option><option>Tamil</option>
+              </select>
+            </div>
+            <div class="form-group"><label class="form-label">Current Situation</label>
+              <select class="form-select">
+                <option>Planning to apply — haven't started</option>
+                <option>Application in progress</option>
+                <option>Visa approved — preparing to move</option>
+                <option>Already moved — need guidance</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Key Concerns (select all that apply)</label>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px;">
+                <label style="display:flex;align-items:center;gap:10px;padding:12px 14px;border:1px solid var(--border2);border-radius:9px;cursor:pointer;font-size:.82rem;transition:border-color .2s;">
+                  <input type="checkbox" style="accent-color:var(--gold);" checked /> Visa compliance
+                </label>
+                <label style="display:flex;align-items:center;gap:10px;padding:12px 14px;border:1px solid var(--border2);border-radius:9px;cursor:pointer;font-size:.82rem;transition:border-color .2s;">
+                  <input type="checkbox" style="accent-color:var(--gold);" checked /> Cost planning
+                </label>
+                <label style="display:flex;align-items:center;gap:10px;padding:12px 14px;border:1px solid var(--border2);border-radius:9px;cursor:pointer;font-size:.82rem;transition:border-color .2s;">
+                  <input type="checkbox" style="accent-color:var(--gold);" /> Cultural adaptation
+                </label>
+                <label style="display:flex;align-items:center;gap:10px;padding:12px 14px;border:1px solid var(--border2);border-radius:9px;cursor:pointer;font-size:.82rem;transition:border-color .2s;">
+                  <input type="checkbox" style="accent-color:var(--gold);" /> Safety awareness
+                </label>
+                <label style="display:flex;align-items:center;gap:10px;padding:12px 14px;border:1px solid var(--border2);border-radius:9px;cursor:pointer;font-size:.82rem;transition:border-color .2s;">
+                  <input type="checkbox" style="accent-color:var(--gold);" /> Job search help
+                </label>
+                <label style="display:flex;align-items:center;gap:10px;padding:12px 14px;border:1px solid var(--border2);border-radius:9px;cursor:pointer;font-size:.82rem;transition:border-color .2s;">
+                  <input type="checkbox" style="accent-color:var(--gold);" /> Emergency prep
+                </label>
+              </div>
+            </div>
+          </div>
+          <div class="nav-btns">
+            <button class="btn-prev" onclick="goStep(2)">← Back</button>
+            <button class="btn-next" style="background:linear-gradient(135deg,var(--gold),var(--gold-lt));" onclick="generatePlan()">✨ Generate My Plan</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Live Preview -->
+    <div class="result-side">
+      <div class="result-preview" id="form-preview">
+        <div class="result-empty" id="preview-empty">
+          <div class="result-empty-icon">🗺️</div>
+          <h4 style="font-size:1rem;">Your plan will appear here</h4>
+          <p style="font-size:.8rem;color:var(--muted);">Fill in the form to see your personalised immigration preparation roadmap.</p>
+        </div>
+        <div id="preview-progress" style="display:none;">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:24px;">
+            <span id="prev-flag" style="font-size:2rem;"></span>
+            <div><div style="font-family:var(--ff-display);font-weight:700;" id="prev-name">—</div><div style="font-size:.78rem;color:var(--muted);" id="prev-route">Select details above</div></div>
+          </div>
+          <div class="progress-steps" id="psteps"></div>
+        </div>
+      </div>
+      <div style="margin-top:16px;padding:18px 22px;background:rgba(9,184,181,.06);border:1px solid rgba(9,184,181,.2);border-radius:12px;">
+        <div style="font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--teal);margin-bottom:6px;font-family:var(--ff-display);font-weight:600;">💡 Pro Tip</div>
+        <p style="font-size:.8rem;color:var(--muted);line-height:1.6;">Export your generated plan as PDF to keep it accessible during your move. Update it whenever your status changes.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════ GENERATED PLAN ════ -->
+<div id="plan-result">
+  <div class="container">
+    <!-- Export bar -->
+    <div class="export-bar">
+      <button class="btn btn-ghost btn-sm" onclick="window.print()">🖨️ Print</button>
+      <button class="btn btn-outline btn-sm" onclick="exportPDF()">📄 Export PDF</button>
+      <button class="btn btn-gold btn-sm" onclick="location.href='dashboard.html'">💾 Save to Dashboard</button>
+    </div>
+
+    <!-- Plan Header -->
+    <div class="plan-header reveal">
+      <div>
+        <div style="font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--teal);font-family:var(--ff-display);font-weight:600;margin-bottom:12px;">Your Immigration Plan</div>
+        <h2 id="plan-title">India → United States · F-1 Student Visa</h2>
+        <p class="muted" style="margin-top:8px;font-size:.9rem;" id="plan-sub">Generated for <span id="plan-name-display">Aditya</span> · <span id="plan-date-display"></span></p>
+        <div style="display:flex;gap:10px;margin-top:18px;flex-wrap:wrap;" id="plan-badges">
+          <span class="badge badge-gold">Student Visa</span>
+          <span class="badge badge-teal">F-1 Category</span>
+          <span class="badge badge-green">Low–Medium Risk</span>
+        </div>
+      </div>
+      <div class="plan-route">
+        <div style="text-align:center;"><div class="plan-passport-flag" id="plan-from-flag">🇮🇳</div><div style="font-size:.72rem;color:var(--muted);margin-top:6px;">Origin</div></div>
+        <div class="plan-arrow">→</div>
+        <div style="text-align:center;"><div class="plan-dest-flag" id="plan-to-flag">🇺🇸</div><div style="font-size:.72rem;color:var(--muted);margin-top:6px;">Destination</div></div>
+      </div>
+    </div>
+
+    <!-- Plan Grid -->
+    <div class="plan-grid">
+      <!-- Documents Checklist -->
+      <div class="plan-section reveal">
+        <div class="plan-section-title">📋 Required Documents</div>
+        <div id="docs-list"></div>
+      </div>
+
+      <!-- Timeline -->
+      <div class="plan-section reveal" style="transition-delay:.1s">
+        <div class="plan-section-title">📅 Immigration Timeline</div>
+        <div id="timeline-list"></div>
+      </div>
+
+      <!-- Visa Rules -->
+      <div class="plan-section reveal" style="transition-delay:.15s">
+        <div class="plan-section-title">⚖️ Visa Rules & Compliance</div>
+        <div id="visa-rules-list"></div>
+      </div>
+
+      <!-- Cost Overview -->
+      <div class="plan-section reveal" style="transition-delay:.2s">
+        <div class="plan-section-title">💰 Cost Overview</div>
+        <div id="cost-list"></div>
+      </div>
+
+      <!-- Cultural Guidelines -->
+      <div class="plan-section reveal" style="transition-delay:.25s">
+        <div class="plan-section-title">🌍 Cultural Guidelines</div>
+        <div id="culture-list"></div>
+      </div>
+
+      <!-- Emergency Contacts -->
+      <div class="plan-section reveal" style="transition-delay:.3s">
+        <div class="plan-section-title">🆘 Emergency Contacts</div>
+        <div id="emergency-list"></div>
+      </div>
+    </div>
+
+    <div class="plan-section reveal heatmap-section" style="transition-delay:.34s">
+      <div class="plan-section-title">🗺️ City Safety Heatmap for Newcomers</div>
+      <div class="heatmap-head">
+        <p>Practical city-level safety view for your selected destination. Use this to prioritize housing and transport decisions.</p>
+      </div>
+      <div class="heatmap-grid" id="city-heatmap-grid"></div>
+    </div>
+
+    <div style="text-align:center;margin-top:48px;" class="reveal">
+      <p class="muted" style="font-size:.82rem;margin-bottom:20px;">⚠️ This plan is for educational purposes only. Always consult a licensed immigration attorney for legal decisions.</p>
+      <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;">
+        <a href="learn.html" class="btn btn-gold">📚 Start Learning Modules</a>
+        <a href="countries.html" class="btn btn-outline">🌍 Explore Country Guide</a>
+        <a href="dashboard.html" class="btn btn-ghost">📊 Open Dashboard</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="footer-brand">Immigration<span style="color:var(--gold)">IQ</span></div>
+  <div class="footer-links"><a href="../index.html">Home</a><a href="countries.html">Countries</a><a href="learn.html">Learn</a><a href="dashboard.html">Dashboard</a></div>
+  <div class="footer-copy">© 2025 ImmigrationIQ</div>
+</footer>
+
+<script src="../js/shared.js"></script>
+<script>
+const PLAN_DATA = {
+  visaTypes: {
+    'United States': [
+      ['F-1','F-1 (Student)'],
+      ['J-1','J-1 (Exchange Visitor)'],
+      ['H-1B','H-1B (Specialty Occupation)'],
+      ['L-1','L-1 (Intracompany Transfer)'],
+      ['O-1','O-1 (Extraordinary Ability)'],
+      ['B-1/B-2','B-1/B-2 (Business/Tourism)']
+    ],
+    'Canada': [
+      ['Study Permit','Study Permit'],
+      ['Work Permit (TFWP)','Work Permit (Temporary Foreign Worker Program)'],
+      ['IEC','IEC (Working Holiday)'],
+      ['Express Entry','Express Entry (PR Pathway)'],
+      ['PNP','Provincial Nominee Program (PNP)'],
+      ['Visitor Visa','Visitor Visa (TRV)']
+    ],
+    'United Kingdom': [
+      ['Student Visa','Student Visa'],
+      ['Skilled Worker Visa','Skilled Worker Visa'],
+      ['Health and Care Worker Visa','Health and Care Worker Visa'],
+      ['Global Talent Visa','Global Talent Visa'],
+      ['Graduate Visa','Graduate Visa'],
+      ['Standard Visitor Visa','Standard Visitor Visa']
+    ],
+    'Germany': [
+      ['Student Applicant Visa','Student Applicant Visa'],
+      ['Student Visa','Student Visa'],
+      ['EU Blue Card','EU Blue Card'],
+      ['Job Seeker Visa','Job Seeker Visa'],
+      ['Opportunity Card','Opportunity Card (Chancenkarte)'],
+      ['Family Reunion Visa','Family Reunion Visa']
+    ],
+    'Australia': [
+      ['Subclass 500','Subclass 500 (Student Visa)'],
+      ['Subclass 482','Subclass 482 (Skills in Demand/TSS)'],
+      ['Subclass 189','Subclass 189 (Skilled Independent)'],
+      ['Subclass 190','Subclass 190 (Skilled Nominated)'],
+      ['Subclass 491','Subclass 491 (Regional Provisional)'],
+      ['Subclass 600','Subclass 600 (Visitor Visa)']
+    ],
+    'Singapore': [
+      ['Student Pass','Student Pass'],
+      ['Employment Pass','Employment Pass (EP)'],
+      ['S Pass','S Pass'],
+      ['EntrePass','EntrePass'],
+      ['Personalised Employment Pass','Personalised Employment Pass (PEP)'],
+      ['Short-Term Visit Pass','Short-Term Visit Pass']
+    ],
+    'UAE': [
+      ['Residence Visa (Employment)','Residence Visa (Employment)'],
+      ['Student Residence Visa','Student Residence Visa'],
+      ['Golden Visa','Golden Visa'],
+      ['Green Visa','Green Visa'],
+      ['Remote Work Visa','Remote Work Visa'],
+      ['Tourist Visa','Tourist Visa']
+    ],
+    'Japan': [
+      ['Student Visa','Student Visa'],
+      ['Engineer/Specialist in Humanities/International Services','Engineer/Specialist in Humanities/International Services'],
+      ['Highly Skilled Professional','Highly Skilled Professional'],
+      ['Specified Skilled Worker','Specified Skilled Worker'],
+      ['Business Manager','Business Manager'],
+      ['Temporary Visitor','Temporary Visitor']
+    ]
+  },
+  docs: {
+    default: ['Valid Passport (6+ months validity)','Visa Application Form (DS-160)','SEVIS fee receipt','Offer letter / I-20 / CAS','Financial proof (bank statements)','Passport-size photographs','Health / vaccination records','Police clearance certificate'],
+    work:    ['Valid Passport','Labor Condition Application (LCA)','H-1B Petition (I-129)','Employment offer letter','Educational credentials','Specialty occupation proof','Previous visa history'],
+  },
+  timeline: {
+    default: [['6 months before','Gather all documents and start SEVIS registration'],['4 months before','Submit DS-160 and pay SEVIS fee'],['3 months before','Schedule visa interview at nearest embassy'],['6 weeks before','Attend visa interview — carry all originals'],['2 weeks before','Book flight and arrange accommodation'],['Day of travel','Carry I-20, DS-160 confirmation, and proof of funds'],['On arrival','Complete customs form — declare all necessary items']],
+  },
+  rules: {
+    'United States': ['Maintain full-time enrollment (F-1)','Report any change of address within 10 days','Work authorization limited to on-campus only (F-1)','Maintain valid I-20 and renew before expiry','Do not overstay — severe consequences apply','Health insurance is mandatory at most universities'],
+    'Canada':        ['Report address change to IRCC within 180 days','Cannot work more than 20 hrs/wk on study permit','Apply for PGWP within 180 days of graduation','Maintain valid study permit throughout stay'],
+    'default':       ['Comply with all visa conditions at all times','Notify immigration authorities of any status change','Do not engage in unauthorized employment','Renew visa at least 3 months before expiry'],
+  },
+  costs: {
+    'United States': [['Visa Application Fee (DS-160)','$185'],['SEVIS I-901 Fee','$350'],['Health Insurance (annual)','$1,200–$3,000'],['University Tuition (annual)','$20,000–$55,000'],['Living Expenses (annual)','$12,000–$20,000'],['Flight (round trip)','$800–$1,500']],
+    'Canada':        [['Study Permit Fee','CA$150'],['Biometrics','CA$85'],['Tuition (annual)','CA$15,000–$35,000'],['Living Expenses (annual)','CA$10,000–$15,000'],['Health Insurance','CA$600–$800']],
+    'Germany':       [['Student Visa Fee','€75'],['Blocked Account (Sperrkonto)','€11,208 required'],['Tuition (most public unis)','€0–€3,000/semester'],['Living Expenses (annual)','€10,000–$13,000']],
+    'default':       [['Visa Application Fee','Varies by country'],['Document Authentication','$50–$200'],['Health Insurance','$500–$2,000/yr'],['Living Expenses','Varies by city'],['Flights','$500–$2,000']],
+  },
+  culture: {
+    'United States': ['Punctuality is highly valued — be on time','Direct communication style is the norm','Tipping (15–20%) is expected at restaurants','Personal space is respected — maintain distance in conversation','Networking is key for professional growth','Emergency: 911 for police, fire, medical'],
+    'Canada':        ['Extremely multicultural — diversity is celebrated','Bilingual (English/French) — French in Québec','Extreme politeness is a cultural norm','Emergency: 911 across all provinces'],
+    'Germany':       ['Privacy is highly respected — avoid personal questions','Punctuality is non-negotiable','Formal forms of address in professional settings','Recycling and environmental responsibility are serious','Emergency: 110 (police), 112 (ambulance/fire)'],
+    'default':       ['Research local customs before arrival','Learn basic phrases in the local language','Be respectful of religious and cultural norms','Understand local tipping and social etiquette'],
+  },
+  emergency: {
+    'United States': [['Emergency Services','911'],['Non-emergency Police','311'],['Indian Embassy (DC)','(202) 939-7000'],['USCIS Contact Center','1-800-375-5283'],['Crisis Hotline','988']],
+    'Canada':        [['Emergency Services','911'],['Indian High Commission','1-613-744-3751'],['IRCC Helpdesk','1-888-242-2100']],
+    'Germany':       [['Police','110'],['Ambulance / Fire','112'],['Indian Embassy Berlin','+49 30 2580 3000'],['BAMF Helpline','+49 911 943-0']],
+    'default':       [['Emergency','112 (EU) / 999 (UK) / 911 (US)'],['Embassy','Find at embassy.gov'],['Immigration Helpline','Check official gov website']],
+  },
+  citySafety: {
+    'United States': [
+      { city:'New York', score:62, level:'caution', note:'Use licensed yellow/green cabs or app pickups only; avoid cash-only rental deals.' },
+      { city:'Austin', score:78, level:'safe', note:'Lower newcomer scam reports; still verify lease and employer paperwork.' },
+      { city:'San Francisco', score:55, level:'watch', note:'High housing fraud activity; insist on contracts and identity verification.' }
+    ],
+    'Canada': [
+      { city:'Toronto', score:74, level:'safe', note:'Strong newcomer support but watch for fake immigration consultants.' },
+      { city:'Vancouver', score:61, level:'caution', note:'Rental listing scams are common in peak move-in seasons.' },
+      { city:'Montreal', score:70, level:'safe', note:'Good public safety access; keep bilingual emergency phrases ready.' }
+    ],
+    'United Kingdom': [
+      { city:'London', score:60, level:'caution', note:'Watch for fake room deposit requests and courier passport scams.' },
+      { city:'Manchester', score:72, level:'safe', note:'Reliable transit zones; verify landlord registration before paying.' },
+      { city:'Birmingham', score:64, level:'caution', note:'Job phishing spikes in private messaging groups.' }
+    ],
+    'Germany': [
+      { city:'Berlin', score:67, level:'caution', note:'Appointment resale scams target residence registration newcomers.' },
+      { city:'Munich', score:76, level:'safe', note:'High compliance environment; keep permit docs ready in transit checks.' },
+      { city:'Frankfurt', score:63, level:'caution', note:'Airport transfer and short-stay housing scams appear frequently.' }
+    ],
+    'Australia': [
+      { city:'Sydney', score:65, level:'caution', note:'Shared housing fraud reported; request lease and bond receipts.' },
+      { city:'Melbourne', score:73, level:'safe', note:'Strong newcomer help desks and clear emergency pathways.' },
+      { city:'Brisbane', score:71, level:'safe', note:'Lower scam density but still validate recruiter and visa claims.' }
+    ],
+    'Singapore': [
+      { city:'Singapore', score:82, level:'safe', note:'Very structured systems; main risk is fake agent fees via chat apps.' },
+      { city:'Jurong East', score:79, level:'safe', note:'Strong transport safety and low newcomer-targeted fraud reports.' },
+      { city:'Woodlands', score:76, level:'safe', note:'Low-risk area, but always use MOM-approved employment channels.' }
+    ],
+    'UAE': [
+      { city:'Dubai', score:66, level:'caution', note:'Watch for recruitment fee scams and unauthorized subletting.' },
+      { city:'Abu Dhabi', score:74, level:'safe', note:'Good official channels; verify labor contract in MOHRE systems.' },
+      { city:'Sharjah', score:68, level:'caution', note:'Apartment deposit disputes can occur without proper paperwork.' }
+    ],
+    'Japan': [
+      { city:'Tokyo', score:75, level:'safe', note:'Low crime but strict documentation expectations; keep residence card ready.' },
+      { city:'Osaka', score:72, level:'safe', note:'Generally safe; beware fake guarantor service offers.' },
+      { city:'Nagoya', score:70, level:'safe', note:'Stable newcomer conditions with lower scam frequency.' }
+    ],
+    'default': [
+      { city:'Primary City', score:68, level:'caution', note:'Verify housing, transport, and employer claims through official channels.' },
+      { city:'Secondary City', score:72, level:'safe', note:'Maintain contract records and emergency contacts at all times.' },
+      { city:'Budget District', score:58, level:'watch', note:'Cheaper zones can have higher fraud pressure on newcomers.' }
+    ]
+  },
+  flags: {
+    'United States':'🇺🇸','Canada':'🇨🇦','United Kingdom':'🇬🇧','Germany':'🇩🇪','Australia':'🇦🇺','Singapore':'🇸🇬','UAE':'🇦🇪','Japan':'🇯🇵','India':'🇮🇳','China':'🇨🇳','Brazil':'🇧🇷','Philippines':'🇵🇭','Mexico':'🇲🇽','Nigeria':'🇳🇬',
+  }
+};
+
+let currentStep=1;
+
+function renderCityHeatmap(dest){
+  const grid = document.getElementById('city-heatmap-grid');
+  if(!grid) return;
+  const rows = PLAN_DATA.citySafety[dest] || PLAN_DATA.citySafety.default;
+  grid.innerHTML = rows.map(item => {
+    const levelClass = item.level === 'safe' ? 'heat-safe' : item.level === 'caution' ? 'heat-caution' : 'heat-watch';
+    const fill = item.level === 'safe'
+      ? 'linear-gradient(90deg,#10B981,#6DFFE5)'
+      : item.level === 'caution'
+      ? 'linear-gradient(90deg,#F59E0B,#FFD08A)'
+      : 'linear-gradient(90deg,#EF4444,#FF8A8A)';
+    return `
+      <article class="heatmap-card">
+        <div class="heatmap-city"><span>${item.city}</span><span class="heat-score ${levelClass}">${item.score}/100</span></div>
+        <div class="heat-bar-track"><div class="heat-bar-fill" style="width:${item.score}%;background:${fill};"></div></div>
+        <p class="heat-note">${item.note}</p>
+      </article>
+    `;
+  }).join('');
+}
+
+function populateVisaOptions(){
+  const dest=document.getElementById('f-dest').value;
+  const visaSelect=document.getElementById('f-visa');
+  const visas=PLAN_DATA.visaTypes[dest] || [];
+  const previous=visaSelect.value;
+
+  if(!dest){
+    visaSelect.innerHTML='<option value="">— Select destination first —</option>';
+    visaSelect.value='';
+    visaSelect.disabled=true;
+    return;
+  }
+
+  visaSelect.disabled=false;
+  visaSelect.innerHTML=['<option value="">— Select visa type —</option>']
+    .concat(visas.map(v=>`<option value="${v[0]}">${v[1]}</option>`))
+    .join('');
+
+  if(visas.some(v=>v[0]===previous)){
+    visaSelect.value=previous;
+  } else {
+    visaSelect.value='';
+  }
+}
+
+function goStep(n){
+  document.getElementById('step-'+currentStep).classList.remove('active');
+  document.getElementById('stepbtn-'+currentStep).classList.remove('active');
+  if(n>currentStep) document.getElementById('stepbtn-'+currentStep).classList.add('done');
+  currentStep=n;
+  document.getElementById('step-'+n).classList.add('active');
+  document.getElementById('stepbtn-'+n).classList.add('active');
+  updatePreview();
+}
+
+function updatePreview(){
+  const name=document.getElementById('f-name').value||'—';
+  const passport=document.getElementById('f-passport').value;
+  const dest=document.getElementById('f-dest').value;
+  const purpose=document.getElementById('f-purpose').value;
+  const visa=document.getElementById('f-visa').value;
+  if(!passport&&!dest){ return; }
+  document.getElementById('preview-empty').style.display='none';
+  document.getElementById('preview-progress').style.display='block';
+  document.getElementById('prev-flag').textContent=PLAN_DATA.flags[passport]||'🌍';
+  document.getElementById('prev-name').textContent=name;
+  document.getElementById('prev-route').textContent=(passport||'Origin')+' → '+(dest||'Destination')+(visa?' · '+visa:'');
+  const steps=[
+    {label:'Personal Information',done:!!name&&name!=='—'},
+    {label:'Passport Country',done:!!passport},
+    {label:'Destination Country',done:!!dest},
+    {label:'Purpose / Visa Type',done:!!purpose&&!!visa},
+    {label:'Preferences',done:currentStep>=3},
+  ];
+  const cont=document.getElementById('psteps');
+  cont.innerHTML=steps.map(s=>{
+    const cls=s.done?'pstep-done':'pstep-pending';
+    const ic=s.done?'✓':'○';
+    const icBg=s.done?'rgba(16,185,129,.2)':'rgba(255,255,255,.05)';
+    const icCol=s.done?'#10B981':'var(--muted)';
+    return `<div class="progress-step ${cls}"><div class="pstep-icon" style="background:${icBg};color:${icCol};">${ic}</div><span>${s.label}</span></div>`;
+  }).join('');
+}
+
+// Listen for input changes
+['f-name','f-passport','f-dest','f-purpose','f-visa'].forEach(id=>{
+  const el=document.getElementById(id);
+  if(el) el.addEventListener('change',updatePreview), el.addEventListener('input',updatePreview);
+});
+
+document.getElementById('f-dest').addEventListener('change',()=>{
+  populateVisaOptions();
+  updatePreview();
+});
+
+populateVisaOptions();
+
+function generatePlan(){
+  const name=document.getElementById('f-name').value||'Traveller';
+  const passport=document.getElementById('f-passport').value||'India';
+  const dest=document.getElementById('f-dest').value||'United States';
+  const visa=document.getElementById('f-visa').value||'F-1';
+  const purpose=document.getElementById('f-purpose').value||'study';
+
+  // Populate plan
+  document.getElementById('plan-title').textContent=`${passport} → ${dest} · ${visa}`;
+  document.getElementById('plan-name-display').textContent=name;
+  document.getElementById('plan-date-display').textContent=new Date().toLocaleDateString('en-US',{month:'long',year:'numeric'});
+  document.getElementById('plan-from-flag').textContent=PLAN_DATA.flags[passport]||'🌍';
+  document.getElementById('plan-to-flag').textContent=PLAN_DATA.flags[dest]||'🌍';
+
+  const docs=(purpose==='work'?PLAN_DATA.docs.work:PLAN_DATA.docs.default);
+  document.getElementById('docs-list').innerHTML=docs.map((d,i)=>`
+    <div class="checklist-item">
+      <div class="check-icon ${i<3?'check-done':'check-todo'}">${i<3?'✓':'!'}</div>
+      <span style="font-size:.83rem;">${d}</span>
+    </div>`).join('');
+
+  const tl=PLAN_DATA.timeline.default;
+  document.getElementById('timeline-list').innerHTML=tl.map((t,i)=>`
+    <div class="timeline-step">
+      <div><div class="timeline-dot">${i+1}</div>${i<tl.length-1?'<div class="tl-connector"></div>':''}</div>
+      <div><div style="font-family:var(--ff-display);font-size:.78rem;font-weight:700;color:var(--gold);margin-bottom:3px;">${t[0]}</div><div style="font-size:.82rem;color:var(--muted);">${t[1]}</div></div>
+    </div>`).join('');
+
+  const rules=PLAN_DATA.rules[dest]||PLAN_DATA.rules.default;
+  document.getElementById('visa-rules-list').innerHTML=rules.map(r=>`
+    <div class="checklist-item"><div class="check-icon check-todo">!</div><span style="font-size:.83rem;">${r}</span></div>`).join('');
+
+  const costs=PLAN_DATA.costs[dest]||PLAN_DATA.costs.default;
+  document.getElementById('cost-list').innerHTML=costs.map((c,i)=>`
+    <div class="cost-row ${i===costs.length-1?'cost-total':''}">
+      <span style="font-size:.83rem;${i===costs.length-1?'font-weight:700;':'color:var(--muted);'}">${c[0]}</span>
+      <span style="font-family:var(--ff-display);font-weight:700;color:var(--gold);">${c[1]}</span>
+    </div>`).join('');
+
+  const cult=PLAN_DATA.culture[dest]||PLAN_DATA.culture.default;
+  document.getElementById('culture-list').innerHTML=cult.map(c=>`
+    <div class="checklist-item"><div class="check-icon" style="background:rgba(9,184,181,.15);color:var(--teal);">✦</div><span style="font-size:.83rem;">${c}</span></div>`).join('');
+
+  const emg=PLAN_DATA.emergency[dest]||PLAN_DATA.emergency.default;
+  document.getElementById('emergency-list').innerHTML=emg.map(e=>`
+    <div class="cost-row">
+      <span style="font-size:.83rem;color:var(--muted);">${e[0]}</span>
+      <span style="font-family:var(--ff-display);font-weight:700;color:var(--teal);">${e[1]}</span>
+    </div>`).join('');
+
+  renderCityHeatmap(dest);
+
+  // Show result
+  document.getElementById('plan-result').style.display='block';
+  setTimeout(()=>{
+    document.getElementById('plan-result').scrollIntoView({behavior:'smooth',block:'start'});
+    document.querySelectorAll('#plan-result .reveal').forEach(el=>{ el.classList.remove('visible'); void el.offsetWidth; });
+    // re-trigger reveal
+    document.querySelectorAll('#plan-result .reveal').forEach((el,i)=>{
+      setTimeout(()=>el.classList.add('visible'),i*80);
+    });
+  },100);
+}
+
+function exportPDF(){ window.print(); }
+</script>
+</body>
+</html>

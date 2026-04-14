@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Learning Hub — ImmigrationIQ</title>
+<link rel="stylesheet" href="../css/global.css"/>
+<style>
+:root {
+  --gold:#2EE8FF;
+  --gold-lt:#85F3FF;
+  --gold-dk:#1496A8;
+  --teal:#7DFF6C;
+  --teal-lt:#B2FF9E;
+}
+.page-hero { min-height:44vh; display:flex; align-items:center; padding:140px 60px 60px; background:radial-gradient(ellipse at 70% 40%,rgba(125,255,108,.17),transparent 60%),radial-gradient(ellipse at 22% 30%,rgba(46,232,255,.13),transparent 52%),var(--navy); position:relative; overflow:hidden; }
+.module-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:22px; }
+.mod-card { cursor:pointer; transition:all .35s var(--ease-expo); }
+.mod-icon-wrap { width:52px; height:52px; border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:1.5rem; margin-bottom:18px; }
+.mod-card h3 { font-size:1rem; margin-bottom:8px; }
+.mod-card p { font-size:.8rem; color:var(--muted); line-height:1.7; margin-bottom:16px; }
+.mod-meta { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:16px; }
+.mod-progress-label { display:flex; justify-content:space-between; font-size:.72rem; color:var(--muted); margin-bottom:5px; }
+
+/* legal snapshot */
+.rule-snap {
+  margin-bottom:30px;
+  padding:22px;
+  border-radius:16px;
+  border:1px solid rgba(46,232,255,.28);
+  background:linear-gradient(135deg,rgba(46,232,255,.1),rgba(125,255,108,.06));
+}
+.rule-snap-top { display:flex; justify-content:space-between; align-items:flex-end; gap:14px; flex-wrap:wrap; margin-bottom:16px; }
+.rule-snap-top h3 { font-size:1rem; }
+.rule-snap-top p { font-size:.78rem; color:var(--muted); margin-top:6px; }
+.rule-snap-select {
+  min-width:230px;
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(46,232,255,.25);
+  color:var(--white);
+  border-radius:10px;
+  padding:11px 12px;
+  font-size:.85rem;
+}
+.rule-snap-select:focus { outline:none; border-color:rgba(46,232,255,.55); }
+.rule-snap-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; }
+.rule-snap-card { background:rgba(4,6,15,.62); border:1px solid var(--border2); border-radius:10px; padding:12px; }
+.rule-snap-level { font-size:.64rem; letter-spacing:.08em; text-transform:uppercase; font-family:var(--ff-display); font-weight:700; margin-bottom:5px; }
+.rule-snap-level.high { color:#ffa4a4; }
+.rule-snap-level.medium { color:#ffd598; }
+.rule-snap-level.low { color:#87e7c6; }
+.rule-snap-card h4 { font-family:var(--ff-display); font-size:.82rem; margin-bottom:4px; }
+.rule-snap-card p { font-size:.76rem; color:var(--muted); line-height:1.55; }
+
+/* Lesson view */
+#lesson-view { display:none; }
+.lesson-header { padding:32px 40px 28px; background:var(--navy); border-bottom:1px solid var(--border2); display:flex; align-items:center; gap:24px; flex-wrap:wrap; }
+.lesson-back { display:flex; align-items:center; gap:8px; color:var(--muted); cursor:pointer; font-size:.85rem; transition:color .2s; flex-shrink:0; }
+.lesson-back:hover { color:var(--white); }
+.lesson-body { display:grid; grid-template-columns:280px 1fr; min-height:70vh; }
+.lesson-sidebar { border-right:1px solid var(--border2); padding:24px; background:var(--navy); }
+.lesson-lesson { display:flex; align-items:center; gap:12px; padding:12px 14px; border-radius:9px; cursor:pointer; font-size:.83rem; transition:all .2s; margin-bottom:4px; }
+.lesson-lesson.active { background:rgba(212,168,67,.1); color:var(--gold); }
+.lesson-lesson:hover:not(.active) { background:var(--card2); }
+.lesson-check { width:22px; height:22px; border-radius:50%; border:1.5px solid; display:flex; align-items:center; justify-content:center; font-size:.62rem; flex-shrink:0; }
+.lesson-content { padding:44px 56px; max-width:720px; }
+.lesson-content h2 { margin-bottom:20px; font-size:1.8rem; }
+.lesson-content p { font-size:.9rem; line-height:1.85; color:var(--muted); margin-bottom:18px; }
+.lesson-content ul { margin:14px 0 18px 0; display:flex; flex-direction:column; gap:8px; }
+.lesson-content li { font-size:.88rem; color:var(--muted); padding:10px 14px; background:var(--card); border:1px solid var(--border2); border-radius:8px; display:flex; gap:10px; align-items:flex-start; }
+.lesson-content li::before { content:'✦'; color:var(--teal); flex-shrink:0; font-size:.7rem; margin-top:2px; }
+.lesson-nav { display:flex; gap:12px; margin-top:36px; }
+
+/* Quiz */
+#quiz-view { display:none; }
+.quiz-wrap { max-width:680px; margin:80px auto; padding:0 28px; }
+.quiz-option { width:100%; text-align:left; padding:16px 20px; background:var(--card); border:1.5px solid var(--border2); border-radius:11px; font-size:.88rem; color:var(--white); cursor:pointer; transition:all .25s; margin-bottom:10px; display:flex; gap:14px; align-items:center; }
+.quiz-option:hover { border-color:rgba(212,168,67,.4); background:rgba(212,168,67,.05); }
+.quiz-option.correct { border-color:rgba(16,185,129,.6); background:rgba(16,185,129,.08); color:#10B981; }
+.quiz-option.wrong { border-color:rgba(239,68,68,.6); background:rgba(239,68,68,.08); color:#EF4444; }
+.quiz-option.dim { opacity:.4; pointer-events:none; }
+.q-letter { width:28px; height:28px; border-radius:50%; border:1.5px solid var(--border2); color:var(--white); display:flex; align-items:center; justify-content:center; font-family:var(--ff-display); font-size:.75rem; font-weight:700; flex-shrink:0; }
+.score-card { text-align:center; padding:60px 40px; background:var(--card); border:1px solid rgba(212,168,67,.2); border-radius:22px; }
+
+@media(max-width:960px){ .module-grid{grid-template-columns:1fr 1fr;} .rule-snap-grid{grid-template-columns:1fr 1fr;} .lesson-body{grid-template-columns:1fr;} .lesson-sidebar{display:none;} .lesson-content{padding:28px;} .page-hero{padding:120px 28px 50px;} }
+@media(max-width:600px){ .module-grid{grid-template-columns:1fr;} .rule-snap-grid{grid-template-columns:1fr;} }
+</style>
+</head>
+<body>
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursor-ring"></div>
+<nav class="navbar">
+  <a href="../index.html" class="navbar-logo">Immigration<span>IQ</span></a>
+  <div class="navbar-links">
+    <a href="../index.html">Home</a><a href="planner.html">Planner</a><a href="countries.html">Countries</a>
+    <a href="learn.html">Learn</a><a href="safety.html">Safety</a><a href="dashboard.html">Dashboard</a>
+    <a href="login.html" class="navbar-auth-link" data-auth="guest">Log In</a>
+    <a href="signup.html" class="navbar-auth-link navbar-auth-signup" data-auth="guest">Sign Up</a>
+    <a href="dashboard.html" class="navbar-auth-user" data-auth="user" hidden><span class="navbar-user-avatar" data-auth-avatar>IQ</span><span class="navbar-user-name" data-auth-name>Account</span></a>
+    <button type="button" class="navbar-auth-logout" data-auth="user" data-auth-logout data-auth-redirect="../index.html" hidden>Log Out</button>
+    <a href="planner.html" class="navbar-cta">Get Started →</a>
+  </div>
+  <button class="hamburger"><span></span><span></span><span></span></button>
+</nav>
+
+<!-- Main hub view -->
+<div id="hub-view">
+  <section class="page-hero">
+    <div style="max-width:1320px;margin:0 auto;width:100%;display:grid;grid-template-columns:1fr auto;gap:40px;align-items:center;">
+      <div>
+        <span class="tag">Learning Hub</span>
+        <h1>Learn Before <span class="grad-teal">You Move</span></h1>
+        <p class="lead" style="margin-top:16px;max-width:580px;">Structured modules covering immigration law, cultural adaptation, workplace rights, and emergency preparedness.</p>
+      </div>
+      <div style="text-align:center;padding:28px 36px;background:rgba(9,184,181,.06);border:1px solid rgba(9,184,181,.2);border-radius:18px;">
+        <div style="font-size:2.8rem;font-family:var(--ff-display);font-weight:800;color:var(--teal);" data-count="42" data-suffix="%">0%</div>
+        <div style="font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:4px;">Your Progress</div>
+        <div class="progress-track" style="margin-top:14px;"><div class="progress-fill" data-value="42" style="background:var(--teal);width:0"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:60px;">
+    <div class="container">
+      <!-- Filter tabs -->
+      <div style="display:flex;gap:8px;margin-bottom:40px;flex-wrap:wrap;">
+        <button class="pill active" onclick="filterModules('all',this)">All Modules</button>
+        <button class="pill" onclick="filterModules('Legal',this)">Legal</button>
+        <button class="pill" onclick="filterModules('Safety',this)">Safety</button>
+        <button class="pill" onclick="filterModules('Culture',this)">Culture</button>
+        <button class="pill" onclick="filterModules('Daily Life',this)">Daily Life</button>
+      </div>
+
+      <div class="rule-snap">
+        <div class="rule-snap-top">
+          <div>
+            <h3>Legal Rule Snapshot</h3>
+            <p>Top mistakes that can cancel status quickly. Switch destination to review country-specific risk triggers.</p>
+          </div>
+          <select id="rule-country" class="rule-snap-select" aria-label="Select country for legal snapshot">
+            <option value="United States">United States</option>
+            <option value="Canada">Canada</option>
+            <option value="United Kingdom">United Kingdom</option>
+            <option value="Germany">Germany</option>
+            <option value="Australia">Australia</option>
+          </select>
+        </div>
+        <div class="rule-snap-grid" id="rule-snap-grid"></div>
+      </div>
+
+      <div class="module-grid" id="module-grid" data-stagger></div>
+    </div>
+  </section>
+</div>
+
+<!-- Lesson view -->
+<div id="lesson-view">
+  <div class="lesson-header">
+    <div class="lesson-back" onclick="showHub()">← Back to Modules</div>
+    <div style="flex:1;">
+      <div style="font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--teal);font-family:var(--ff-display);font-weight:600;margin-bottom:4px;" id="lesson-mod-tag">Module</div>
+      <h3 id="lesson-mod-title" style="font-size:1.2rem;">Module Title</h3>
+    </div>
+    <button class="btn btn-gold btn-sm" onclick="startQuiz()" id="quiz-btn">Take Quiz →</button>
+  </div>
+  <div class="lesson-body">
+    <div class="lesson-sidebar" id="lesson-sidebar"></div>
+    <div class="lesson-content" id="lesson-content"></div>
+  </div>
+</div>
+
+<!-- Quiz view -->
+<div id="quiz-view">
+  <div class="quiz-wrap">
+    <div style="margin-bottom:32px;">
+      <div class="lesson-back" onclick="showLesson(currentModule)" style="display:inline-flex;margin-bottom:16px;">← Back to Lesson</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <div style="font-size:.8rem;color:var(--muted);">Question <span id="q-num">1</span> of <span id="q-total">4</span></div>
+        <div style="font-size:.8rem;color:var(--gold);font-family:var(--ff-display);font-weight:700;" id="q-mod-name"></div>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="q-progress" style="background:var(--gold);width:0;transition:width .4s var(--ease-expo);"></div></div>
+    </div>
+    <div id="quiz-body"></div>
+  </div>
+</div>
+
+<footer class="footer" id="hub-footer">
+  <div class="footer-brand">Immigration<span style="color:var(--gold)">IQ</span></div>
+  <div class="footer-links"><a href="../index.html">Home</a><a href="planner.html">Planner</a><a href="countries.html">Countries</a><a href="dashboard.html">Dashboard</a></div>
+  <div class="footer-copy">© 2025 ImmigrationIQ</div>
+</footer>
+
+<script src="../js/shared.js"></script>
+<script>
+const MODULES = [
+  { id:1, icon:'⚖️', color:'rgba(9,184,181,.15)', colorAccent:'var(--teal)', title:'Visa Compliance Basics', cat:'Legal', diff:'Beginner', duration:'25 min', lessons:5, progress:100,
+    desc:'Understand your visa conditions, reporting requirements, and how to avoid status violations.',
+    content:[
+      {title:'What is Visa Status?', body:'Your visa status is the legal permission that allows you to be in a country. Maintaining status means following all the conditions attached to your visa — working only in authorized roles, studying full-time if on a student visa, and leaving before your authorized stay expires.', points:['Status ≠ Visa stamp','Status can change without leaving the country','Violation can lead to deportation and re-entry bans']},
+      {title:'Common Compliance Rules', body:'Every visa type has specific conditions. The most common rules across visa categories apply to employment, reporting, and renewal timelines.', points:['Report address changes within required timeframe','Do not work beyond authorized hours or roles','Renew visa 90 days before expiry','Carry your visa/permit at all times']},
+      {title:'What Happens if You Violate?', body:'Violations are serious and can have long-term consequences on your immigration history.', points:['Immediate cancellation of visa status','Deportation and formal removal','5-year or permanent re-entry bans','Criminal record in certain jurisdictions']},
+      {title:'Maintaining Compliance', body:'Proactive compliance is far easier than fixing violations. Use reminders, legal counsel, and official resources.', points:['Set visa expiry reminders 90 days out','Use USCIS/IRCC/Home Affairs official websites','Never rely on unofficial sources for legal guidance','When in doubt — consult an immigration attorney']},
+      {title:'Module Summary', body:'You have completed the Visa Compliance Basics module. Key takeaways: know your conditions, report changes, renew on time, and always use official resources.', points:['✓ Understand visa status vs visa stamp','✓ Know reporting requirements','✓ Plan renewal 90 days ahead','✓ Use only official sources']},
+    ],
+    quiz:[
+      {q:'How early should you apply for visa renewal?',opts:['1 week before','30 days before','90 days before','After expiry'],ans:2},
+      {q:'What is NOT a common visa compliance requirement?',opts:['Reporting address changes','Following work authorization rules','Attending a cultural orientation','Renewing before expiry'],ans:2},
+      {q:'What is the first consequence of a status violation?',opts:['Warning letter','Visa cancellation','Flight ban','Fine only'],ans:1},
+      {q:'Where should you get official immigration information?',opts:['Facebook groups','Unofficial visa websites','Official government immigration sites','Travel blogs'],ans:2},
+    ],
+  },
+  { id:2, icon:'🆘', color:'rgba(239,68,68,.12)', colorAccent:'#EF4444', title:'Emergency Preparedness Abroad', cat:'Safety', diff:'Intermediate', duration:'20 min', lessons:4, progress:72,
+    desc:'Know what to do in medical, legal, and safety emergencies while living abroad as an immigrant.',
+    content:[
+      {title:'Emergency Service Numbers', body:'Every country has different emergency contact systems. Knowing the right number could save your life.', points:['USA/Canada: 911','UK: 999 or 112','Europe (most): 112','Japan: 110 (police) 119 (ambulance)','Australia: 000','Singapore: 999/995']},
+      {title:'Medical Emergencies', body:'Medical care abroad can be expensive and confusing. Preparation is key.', points:['Get travel/health insurance before departure','Carry a list of your medications in local language','Know location of nearest hospital to your address','Keep embassy emergency contacts saved on phone']},
+      {title:'Legal Emergencies', body:'If you are detained or face legal trouble abroad, you have rights.', points:['Request consular assistance immediately','Do not sign documents you don\'t understand','Contact your home country embassy or consulate','You have the right to remain silent in most countries']},
+      {title:'Natural Disaster Preparedness', body:'Knowing how to respond to natural disasters specific to your destination country is essential.', points:['Register with your embassy\'s emergency notification system','Know local evacuation routes and emergency shelters','Save offline maps of your area','Follow official government alerts only']},
+    ],
+    quiz:[
+      {q:'What is the universal emergency number in most European countries?',opts:['911','999','112','000'],ans:2},
+      {q:'What should you do if detained abroad?',opts:['Sign any document presented','Contact your home country embassy','Leave quietly','Pay a fine'],ans:1},
+      {q:'Which of these is essential before moving abroad?',opts:['Learn local recipes','Get travel/health insurance','Buy local currency only','Take a language course'],ans:1},
+      {q:'Where should you register for disaster notifications?',opts:['Local social media groups','Your home country embassy system','Travel websites','Hotel concierge'],ans:1},
+    ],
+  },
+  { id:3, icon:'🌍', color:'rgba(212,168,67,.12)', colorAccent:'var(--gold)', title:'Cultural Adaptation Guide', cat:'Culture', diff:'Beginner', duration:'35 min', lessons:7, progress:40,
+    desc:'Prepare for culture shock, understand local customs, and adapt to social norms in your destination country.',
+    content:[
+      {title:'Understanding Culture Shock', body:'Culture shock is a normal response to an unfamiliar environment. It typically follows four stages: honeymoon, frustration, adjustment, and adaptation.', points:['Honeymoon phase: everything feels exciting','Frustration phase: differences become irritating','Adjustment: you begin to understand local norms','Adaptation: you feel comfortable in the new culture']},
+      {title:'Social Norms Vary Widely', body:'What is polite in one culture can be offensive in another. Researching your destination country\'s norms before arrival prevents embarrassing or harmful misunderstandings.', points:['Greetings differ: handshakes, bowing, cheek kisses','Eye contact expectations vary by culture','Personal space distances differ significantly','Gift-giving customs can be complex']},
+      {title:'Professional Culture', body:'Workplace culture differs across countries. Understanding expectations will help you succeed professionally.', points:['Communication styles: direct vs indirect','Meeting formality and hierarchy expectations','Dress codes and work-hour expectations','Networking norms differ significantly']},
+      {title:'Building Your Support Network', body:'Building connections in a new country is essential for wellbeing and practical support.', points:['Join expat and immigrant community groups','Attend cultural exchange events','Learn at least basic phrases in the local language','Be patient — building trust takes time']},
+    ],
+    quiz:[
+      {q:'What are the 4 stages of culture shock in order?',opts:['Frustration, Honeymoon, Adaptation, Adjustment','Honeymoon, Frustration, Adjustment, Adaptation','Adaptation, Honeymoon, Frustration, Adjustment','Adjustment, Adaptation, Frustration, Honeymoon'],ans:1},
+      {q:'Why should you research social norms before arriving?',opts:['To impress locals','To avoid misunderstandings that could be harmful','To pass immigration interviews','It is legally required'],ans:1},
+      {q:'What helps most when building a support network abroad?',opts:['Avoiding local communities','Only socializing with your own nationality','Joining community groups and learning local language','Working overtime constantly'],ans:2},
+      {q:'How does professional culture typically differ across countries?',opts:['It is the same everywhere','Only dress codes differ','Communication styles, hierarchy, and networking all vary','Only working hours differ'],ans:2},
+    ],
+  },
+  { id:4, icon:'💼', color:'rgba(139,92,246,.12)', colorAccent:'#8B5CF6', title:'Workplace Rights Abroad', cat:'Legal', diff:'Intermediate', duration:'30 min', lessons:6, progress:0,
+    desc:'Know your employment rights, avoid exploitation, and understand labor laws in your destination country.',
+    content:[
+      {title:'Your Fundamental Workplace Rights', body:'Regardless of immigration status, most countries provide basic workplace protections to all workers.', points:['Right to minimum wage payment','Right to safe working conditions','Protection from discrimination and harassment','Right to rest breaks and working hour limits','Right to written employment contract']},
+      {title:'Common Exploitation Tactics', body:'Immigrants are unfortunately often targeted for workplace exploitation due to language barriers or fear of authorities.', points:['Paid below minimum wage','Unpaid overtime as standard expectation','Threats of immigration reporting to silence complaints','Illegal deductions from salary','Denial of mandated benefits or leave']},
+      {title:'How to Report Violations', body:'Reporting labor violations is your right. In most countries, immigration status does not disqualify you from making a complaint.', points:['Contact the national labor authority','Document everything — emails, contracts, payslips','Seek help from a legal aid organization','Your immigration status is protected when reporting in most jurisdictions']},
+      {title:'Work Authorization Rules', body:'Working beyond your visa authorization is a serious violation. Understand exactly what work you are permitted to do.', points:['Student visas typically limit work hours','Self-employment may require separate authorization','Job changes on work visas may require new applications','Check official sources — not employer claims']},
+    ],
+    quiz:[
+      {q:'Which right applies to ALL workers regardless of immigration status?',opts:['Right to vote','Right to minimum wage','Right to permanent residency','Right to bring family'],ans:1},
+      {q:'What is an example of workplace exploitation targeting immigrants?',opts:['Paid at minimum wage','Provided written contract','Threatened with immigration reporting when complaining','Given legally mandated holidays'],ans:2},
+      {q:'Can you report labor violations regardless of immigration status?',opts:['No — only citizens can report','Yes — and status is protected when reporting in most countries','Only if you have a work visa','Only through your employer'],ans:1},
+      {q:'What should you always get from your employer before starting work?',opts:['A company laptop','A written employment contract','Free accommodation','Travel expenses paid'],ans:1},
+    ],
+  },
+  { id:5, icon:'🏦', color:'rgba(16,185,129,.12)', colorAccent:'#10B981', title:'Banking & Finance Abroad', cat:'Daily Life', diff:'Beginner', duration:'15 min', lessons:3, progress:0,
+    desc:'Set up banking, manage currency exchange, and understand your financial obligations as an immigrant.',
+    content:[
+      {title:'Setting Up a Bank Account', body:'A local bank account is essential for receiving salary, paying rent, and managing daily expenses. Most countries require proof of address, passport, and visa documentation.', points:['Requirements: passport, visa, proof of address','Some banks offer immigrant-friendly accounts','Digital banks (Revolut, Wise, N26) can bridge the gap','Wire transfer fees for international transfers can be high']},
+      {title:'Managing Currency & Remittances', body:'Sending money home is common for immigrants. Using the right service saves significant money over time.', points:['Avoid airport currency exchange — rates are worst','Use Wise/Remitly/WorldRemit for low fees','Watch exchange rate fluctuations for large transfers','Understand local tax implications of large transfers']},
+      {title:'Tax Obligations', body:'As a resident or worker, you likely have local tax obligations even as a foreigner.', points:['File tax returns even if you did not earn above threshold','Some countries require reporting of foreign assets','Dual-taxation treaties may protect you from paying twice','Consult a local tax advisor for complex situations']},
+    ],
+    quiz:[
+      {q:'What do most banks require to open an account as an immigrant?',opts:['Only your email address','Passport, visa, and proof of address','Employment contract only','Minimum $10,000 deposit'],ans:1},
+      {q:'Which services offer the best rates for sending money internationally?',opts:['Airport exchange counters','Hotel front desks','Wise, Remitly, WorldRemit','Traditional wire transfers at banks'],ans:2},
+      {q:'Do immigrants need to file tax returns?',opts:['No — only citizens pay taxes','Yes — in most countries, all workers must file','Only if earning above $100,000','Only in the US'],ans:1},
+      {q:'What is a dual-taxation treaty?',opts:['A tax on two currencies','An agreement preventing you from paying tax twice in two countries','A fee for opening two bank accounts','An international banking regulation'],ans:1},
+    ],
+  },
+  { id:6, icon:'🏥', color:'rgba(6,182,212,.12)', colorAccent:'#06B6D4', title:'Healthcare Navigation', cat:'Daily Life', diff:'Advanced', duration:'20 min', lessons:4, progress:0,
+    desc:'Understand healthcare systems, get insurance, and access medical services as an immigrant abroad.',
+    content:[
+      {title:'Healthcare Systems Vary Widely', body:'Some countries have universal healthcare (UK, Canada, Australia) while others are largely private (US). Knowing your access rights before you arrive is critical.', points:['UK: NHS available after registration','Canada: Provincial health coverage (may have 3-month wait)','USA: Entirely insurance-based — mandatory coverage recommended','Germany: Statutory health insurance mandatory for workers','Singapore: MediShield and employer-provided plans','Australia: Medicare for certain visa holders']},
+      {title:'Getting Health Insurance', body:'Even in countries with public systems, private insurance provides faster access and broader coverage.', points:['Many work visas require proof of insurance','Student visas: check if university plan is included','Travel insurance ≠ health insurance — do not confuse them','Pre-existing conditions: disclose fully to avoid claim denial']},
+      {title:'Finding a Doctor', body:'Accessing healthcare in a new country is daunting but straightforward once you know the system.', points:['Register with a General Practitioner (GP) immediately on arrival','Use 111 (UK), 811 (Canada), 13 Health (Australia) for non-emergency advice','Emergency rooms are for emergencies only — heavy fines in some systems for misuse','Keep a list of your medications with generic names']},
+      {title:'Mental Health Resources', body:'Immigration is stressful. Mental health support is health support — seek it without stigma.', points:['Most countries have free mental health hotlines','Many universities offer free counseling services','Immigrant community centers often have support groups','Telehealth options mean you can access support in your language']},
+    ],
+    quiz:[
+      {q:'Which country does NOT have universal public healthcare?',opts:['UK','Canada','United States','Australia'],ans:2},
+      {q:'What should you do on arrival to a new country regarding healthcare?',opts:['Wait until you are sick','Register with a GP/local doctor immediately','Only use emergency rooms','Rely on travel insurance'],ans:1},
+      {q:'What is the difference between travel insurance and health insurance?',opts:['They are identical','Travel covers short trips abroad; health covers ongoing medical needs','Health insurance is only for citizens','Travel insurance covers more'],ans:1},
+      {q:'Where can you get non-emergency medical advice in the UK?',opts:['999','Google','111 (NHS helpline)','Your employer HR'],ans:2},
+    ],
+  },
+];
+
+const RULE_SNAPSHOT = {
+  'United States': [
+    { level: 'high', title: 'Unauthorized Employment', text: 'Working outside your visa conditions, including side gigs, can trigger immediate status violations.' },
+    { level: 'high', title: 'Missing Address Updates', text: 'Failing to update address changes in required timelines creates compliance flags in records.' },
+    { level: 'medium', title: 'Overstay After Expiry', text: 'Remaining after authorized stay can cause bans and future visa denials.' }
+  ],
+  'Canada': [
+    { level: 'high', title: 'Exceeding Work Hour Limits', text: 'Students crossing allowed work hours risk permit cancellation and restoration issues.' },
+    { level: 'medium', title: 'Studying Without Valid Permit', text: 'Permit gaps while continuing studies may break status continuity.' },
+    { level: 'low', title: 'Late Permit Extension Filing', text: 'Delayed filing weakens legal protections and may force stop-study or stop-work.' }
+  ],
+  'United Kingdom': [
+    { level: 'high', title: 'Breach of Visa Work Terms', text: 'Working in restricted roles/hours can lead to curtailment and sponsor escalation.' },
+    { level: 'medium', title: 'No BRP/eVisa Record Checks', text: 'Ignoring digital status updates can cause travel and right-to-work issues.' },
+    { level: 'low', title: 'Unreported Major Circumstance Changes', text: 'Some status changes require timely reporting to remain compliant.' }
+  ],
+  'Germany': [
+    { level: 'high', title: 'Unauthorized Job Type Changes', text: 'Switching work category without approval can invalidate residence permissions.' },
+    { level: 'medium', title: 'Residence Permit Renewal Delays', text: 'Late renewal can move you into tolerated status with limited rights.' },
+    { level: 'low', title: 'Missing City Registration Deadlines', text: 'Late Anmeldung affects banking, insurance, and permit administration.' }
+  ],
+  'Australia': [
+    { level: 'high', title: 'Breaching Visa Conditions', text: 'Condition violations (work limits, enrollment rules) can trigger cancellation under migration law.' },
+    { level: 'medium', title: 'Unreported Contact/Address Changes', text: 'Not maintaining accurate details can impact official notices and case timelines.' },
+    { level: 'low', title: 'No Health Cover Compliance', text: 'Some visa classes require maintaining adequate health insurance continuously.' }
+  ]
+};
+
+let currentModule = null;
+let currentLesson = 0;
+let quizState = { q:0, score:0, answered:false };
+let activeModFilter = 'all';
+
+function filterModules(cat, btn){
+  activeModFilter = cat;
+  document.querySelectorAll('.pill').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  renderModules();
+}
+
+function renderRuleSnapshot(country){
+  const grid = document.getElementById('rule-snap-grid');
+  if(!grid) return;
+  const list = RULE_SNAPSHOT[country] || RULE_SNAPSHOT['United States'];
+  grid.innerHTML = list.map(item => `
+    <article class="rule-snap-card">
+      <div class="rule-snap-level ${item.level}">${item.level} risk</div>
+      <h4>${item.title}</h4>
+      <p>${item.text}</p>
+    </article>
+  `).join('');
+}
+
+function renderModules(){
+  const grid = document.getElementById('module-grid');
+  const filtered = activeModFilter === 'all' ? MODULES : MODULES.filter(m=>m.cat === activeModFilter);
+  grid.innerHTML = filtered.map((m,i)=>`
+    <div class="card card-tilt mod-card reveal" style="transition-delay:${i*70}ms" onclick="showLesson(${m.id})">
+      <div class="mod-icon-wrap" style="background:${m.color};"><span>${m.icon}</span></div>
+      <h3>${m.title}</h3>
+      <p>${m.desc}</p>
+      <div class="mod-meta"><span class="badge badge-teal">${m.cat}</span><span class="badge badge-gold">${m.diff}</span><span class="badge badge-purple">${m.lessons} lessons · ${m.duration}</span></div>
+      <div class="mod-progress-label"><span>Progress</span><span>${m.progress}%</span></div>
+      <div class="progress-track"><div class="progress-fill" data-value="${m.progress}" style="background:${m.colorAccent};width:0"></div></div>
+      <div style="margin-top:16px;font-size:.78rem;color:${m.colorAccent};font-family:var(--ff-display);font-weight:600;">${m.progress===100?'✓ Completed — Review':''+m.progress>0?'Resume →':'Start Module →'}</div>
+    </div>`).join('');
+  setTimeout(()=>{
+    grid.querySelectorAll('.reveal').forEach((el,i)=>setTimeout(()=>el.classList.add('visible'),i*70));
+    grid.querySelectorAll('.progress-track').forEach(t=>{
+      const f=t.querySelector('.progress-fill'); if(f) setTimeout(()=>f.style.width=f.dataset.value+'%',300);
+    });
+  },50);
+}
+
+function showHub(){
+  document.getElementById('hub-view').style.display='block';
+  document.getElementById('lesson-view').style.display='none';
+  document.getElementById('quiz-view').style.display='none';
+  document.getElementById('hub-footer').style.display='flex';
+  window.scrollTo(0,0);
+}
+
+function showLesson(id){
+  currentModule = typeof id === 'number' ? id : currentModule;
+  const m = MODULES.find(x=>x.id===currentModule);
+  if(!m) return;
+  currentLesson = 0;
+  document.getElementById('hub-view').style.display='none';
+  document.getElementById('lesson-view').style.display='block';
+  document.getElementById('quiz-view').style.display='none';
+  document.getElementById('hub-footer').style.display='none';
+  document.getElementById('lesson-mod-tag').textContent=m.cat+' · '+m.diff+' · '+m.duration;
+  document.getElementById('lesson-mod-title').textContent=m.title;
+  renderLesson();
+  window.scrollTo(0,0);
+}
+
+function renderLesson(){
+  const m = MODULES.find(x=>x.id===currentModule);
+  const sidebar = document.getElementById('lesson-sidebar');
+  const content = document.getElementById('lesson-content');
+  sidebar.innerHTML=`<div style="font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--teal);font-family:var(--ff-display);font-weight:600;margin-bottom:16px;">Lessons</div>`+
+    m.content.map((l,i)=>`
+      <div class="lesson-lesson ${i===currentLesson?'active':''}" onclick="currentLesson=${i};renderLesson()">
+        <div class="lesson-check" style="border-color:${i<currentLesson||m.progress===100?'rgba(16,185,129,.6)':i===currentLesson?'var(--gold)':'var(--border2)'};color:${i<currentLesson||m.progress===100?'#10B981':i===currentLesson?'var(--gold)':'var(--muted)'};">${i<currentLesson||m.progress===100?'✓':i+1}</div>
+        <span>${l.title}</span>
+      </div>`).join('');
+  const lesson = m.content[currentLesson];
+  content.innerHTML=`
+    <div class="tag" style="margin-bottom:12px;">${m.cat} · Lesson ${currentLesson+1} of ${m.content.length}</div>
+    <h2>${lesson.title}</h2>
+    <p>${lesson.body}</p>
+    <ul>${lesson.points.map(p=>`<li>${p}</li>`).join('')}</ul>
+    <div class="lesson-nav">
+      ${currentLesson>0?`<button class="btn btn-ghost btn-sm" onclick="currentLesson--;renderLesson()">← Previous</button>`:''}
+      ${currentLesson<m.content.length-1?`<button class="btn btn-gold btn-sm" onclick="currentLesson++;renderLesson()">Next Lesson →</button>`:`<button class="btn btn-gold btn-sm" onclick="startQuiz()">Take Quiz →</button>`}
+    </div>`;
+}
+
+function startQuiz(){
+  const m = MODULES.find(x=>x.id===currentModule);
+  quizState = { q:0, score:0, answered:false };
+  document.getElementById('lesson-view').style.display='none';
+  document.getElementById('quiz-view').style.display='block';
+  document.getElementById('q-mod-name').textContent=m.title;
+  document.getElementById('q-total').textContent=m.quiz.length;
+  renderQuizQ();
+  window.scrollTo(0,0);
+}
+
+function renderQuizQ(){
+  const m = MODULES.find(x=>x.id===currentModule);
+  if(quizState.q >= m.quiz.length){ renderScore(); return; }
+  const q = m.quiz[quizState.q];
+  document.getElementById('q-num').textContent=quizState.q+1;
+  document.getElementById('q-progress').style.width=((quizState.q/m.quiz.length)*100)+'%';
+  quizState.answered=false;
+  document.getElementById('quiz-body').innerHTML=`
+    <div style="font-family:var(--ff-display);font-weight:700;font-size:1.2rem;margin-bottom:28px;line-height:1.4;">${q.q}</div>
+    ${q.opts.map((opt,i)=>`
+      <button class="quiz-option" onclick="answerQ(${i})">
+        <div class="q-letter">${String.fromCharCode(65+i)}</div>
+        <span>${opt}</span>
+      </button>`).join('')}`;
+}
+
+function answerQ(idx){
+  if(quizState.answered) return;
+  quizState.answered=true;
+  const m = MODULES.find(x=>x.id===currentModule);
+  const correct = m.quiz[quizState.q].ans;
+  const opts=document.querySelectorAll('.quiz-option');
+  opts.forEach((o,i)=>{
+    if(i===correct) o.classList.add('correct');
+    else if(i===idx) o.classList.add('wrong');
+    else o.classList.add('dim');
+  });
+  if(idx===correct) quizState.score++;
+  setTimeout(()=>{ quizState.q++; renderQuizQ(); },1200);
+}
+
+function renderScore(){
+  const m=MODULES.find(x=>x.id===currentModule);
+  const s=quizState.score, t=m.quiz.length;
+  const pct=Math.round(s/t*100);
+  document.getElementById('q-progress').style.width='100%';
+  document.getElementById('quiz-body').innerHTML=`
+    <div class="score-card">
+      <div style="font-size:4rem;margin-bottom:16px;">${pct>=80?'🏆':pct>=60?'⭐':'📚'}</div>
+      <h2 style="margin-bottom:8px;">${pct>=80?'Excellent!':pct>=60?'Good Job!':'Keep Studying!'}</h2>
+      <div style="font-size:3.5rem;font-family:var(--ff-display);font-weight:800;color:var(--gold);margin:16px 0;">${s}/${t}</div>
+      <p class="muted">You scored ${pct}% on ${m.title}</p>
+      <div style="margin-top:28px;"><div class="progress-track" style="max-width:300px;margin:0 auto 24px;height:6px;"><div class="progress-fill" style="width:${pct}%;background:${pct>=80?'#10B981':pct>=60?'var(--gold)':'#EF4444'};"></div></div></div>
+      <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+        <button class="btn btn-gold btn-sm" onclick="startQuiz()">Retry Quiz</button>
+        <button class="btn btn-outline btn-sm" onclick="showLesson(currentModule)">Review Lessons</button>
+        <button class="btn btn-ghost btn-sm" onclick="showHub()">All Modules</button>
+      </div>
+    </div>`;
+}
+
+renderModules();
+
+const ruleCountry = document.getElementById('rule-country');
+if (ruleCountry) {
+  renderRuleSnapshot(ruleCountry.value);
+  ruleCountry.addEventListener('change', () => renderRuleSnapshot(ruleCountry.value));
+}
+</script>
+</body>
+</html>

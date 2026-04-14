@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Country Guides — ImmigrationIQ</title>
+<link rel="stylesheet" href="../css/global.css"/>
+<style>
+:root {
+  --gold:#FF8C42;
+  --gold-lt:#FFB173;
+  --gold-dk:#B85A1E;
+  --teal:#3EC7FF;
+  --teal-lt:#8DDEFF;
+}
+.page-hero { min-height:46vh; display:flex; align-items:center; padding:140px 60px 70px; background:radial-gradient(ellipse at 30% 60%,rgba(255,140,66,.17),transparent 58%),radial-gradient(ellipse at 85% 26%,rgba(62,199,255,.14),transparent 52%),var(--deep); position:relative; overflow:hidden; }
+.search-bar { display:flex; gap:14px; flex-wrap:wrap; margin:48px 0 40px; }
+.search-input { flex:1; min-width:260px; padding:14px 20px; background:var(--card); border:1px solid var(--border2); border-radius:11px; color:var(--white); font-size:.9rem; font-family:var(--ff-body); }
+.search-input:focus { outline:none; border-color:rgba(212,168,67,.5); box-shadow:0 0 0 4px rgba(212,168,67,.08); }
+.filter-pills { display:flex; gap:8px; flex-wrap:wrap; }
+.pill { padding:10px 20px; border:1.5px solid var(--border2); border-radius:99px; font-size:.78rem; font-family:var(--ff-display); font-weight:600; color:var(--muted); cursor:pointer; transition:all .25s; }
+.pill.active,.pill:hover { border-color:var(--gold); color:var(--gold); background:rgba(212,168,67,.07); }
+.countries-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:20px; }
+.country-card { cursor:pointer; text-align:left; }
+.cc-flag { font-size:3rem; margin-bottom:14px; line-height:1; }
+.cc-name { font-family:var(--ff-display); font-weight:700; font-size:1.05rem; margin-bottom:8px; }
+.cc-region { font-size:.73rem; color:var(--muted); margin-bottom:12px; letter-spacing:.06em; text-transform:uppercase; }
+.cc-visa-tags { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:14px; }
+.cc-cta { font-size:.78rem; color:var(--gold); font-family:var(--ff-display); font-weight:600; opacity:0; transition:opacity .25s; }
+.country-card:hover .cc-cta { opacity:1; }
+
+/* Detail overlay */
+#detail-overlay { display:none; position:fixed; inset:0; z-index:700; background:rgba(4,6,15,.97); overflow-y:auto; }
+.detail-inner { max-width:1100px; margin:0 auto; padding:100px 48px 80px; }
+.detail-back { display:inline-flex; align-items:center; gap:8px; color:var(--muted); font-size:.85rem; cursor:pointer; margin-bottom:36px; transition:color .2s; }
+.detail-back:hover { color:var(--white); }
+.detail-header { display:grid; grid-template-columns:auto 1fr auto; gap:28px; align-items:center; padding:36px 40px; border:1px solid rgba(212,168,67,.22); background:linear-gradient(135deg,rgba(212,168,67,.07),transparent); border-radius:20px; margin-bottom:40px; }
+.detail-flag { font-size:5rem; line-height:1; }
+.detail-tabs { background:var(--navy); }
+.detail-grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-top:32px; }
+.info-block { padding:24px 28px; border:1px solid var(--border2); border-radius:14px; background:var(--card); }
+.info-block-title { font-size:.7rem; letter-spacing:.12em; text-transform:uppercase; color:var(--teal); font-family:var(--ff-display); font-weight:600; margin-bottom:14px; }
+.info-row { display:flex; justify-content:space-between; align-items:flex-start; padding:9px 0; border-bottom:1px solid rgba(255,255,255,.04); gap:16px; font-size:.83rem; }
+.info-row:last-child { border-bottom:none; }
+.info-key { color:var(--muted); flex-shrink:0; }
+.info-val { font-weight:500; text-align:right; }
+
+@media(max-width:1100px){ .countries-grid{grid-template-columns:repeat(2,1fr);} }
+@media(max-width:640px){ .countries-grid{grid-template-columns:1fr;} .page-hero{padding:120px 28px 50px;} .detail-inner{padding:80px 20px 60px;} .detail-header{grid-template-columns:1fr;} .detail-grid{grid-template-columns:1fr;} }
+</style>
+</head>
+<body>
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursor-ring"></div>
+<nav class="navbar">
+  <a href="../index.html" class="navbar-logo">Immigration<span>IQ</span></a>
+  <div class="navbar-links">
+    <a href="../index.html">Home</a><a href="planner.html">Planner</a><a href="countries.html">Countries</a>
+    <a href="learn.html">Learn</a><a href="safety.html">Safety</a><a href="dashboard.html">Dashboard</a>
+    <a href="login.html" class="navbar-auth-link" data-auth="guest">Log In</a>
+    <a href="signup.html" class="navbar-auth-link navbar-auth-signup" data-auth="guest">Sign Up</a>
+    <a href="dashboard.html" class="navbar-auth-user" data-auth="user" hidden><span class="navbar-user-avatar" data-auth-avatar>IQ</span><span class="navbar-user-name" data-auth-name>Account</span></a>
+    <button type="button" class="navbar-auth-logout" data-auth="user" data-auth-logout data-auth-redirect="../index.html" hidden>Log Out</button>
+    <a href="planner.html" class="navbar-cta">Get Started →</a>
+  </div>
+  <button class="hamburger"><span></span><span></span><span></span></button>
+</nav>
+
+<section class="page-hero">
+  <div style="max-width:1320px;margin:0 auto;width:100%;">
+    <span class="tag">Immigration Guides</span>
+    <h1>Country <span class="grad-teal">Guides</span></h1>
+    <p class="lead" style="margin-top:16px;max-width:600px;">Comprehensive immigration, cultural, and safety guides for top destinations worldwide. Click any country to explore.</p>
+  </div>
+</section>
+
+<section class="section" style="padding-top:40px;">
+  <div class="container">
+    <div class="search-bar">
+      <input class="search-input" id="search" placeholder="🔍  Search countries..." oninput="filterCountries()" />
+      <div class="filter-pills">
+        <button class="pill active" onclick="setFilter('all',this)">All</button>
+        <button class="pill" onclick="setFilter('Americas',this)">Americas</button>
+        <button class="pill" onclick="setFilter('Europe',this)">Europe</button>
+        <button class="pill" onclick="setFilter('Asia',this)">Asia</button>
+        <button class="pill" onclick="setFilter('Oceania',this)">Oceania</button>
+      </div>
+    </div>
+    <div class="countries-grid" id="countries-grid" data-stagger></div>
+  </div>
+</section>
+
+<!-- Country Detail Overlay -->
+<div id="detail-overlay">
+  <div class="detail-inner">
+    <div class="detail-back" onclick="closeDetail()">← Back to Countries</div>
+    <div class="detail-header">
+      <div class="detail-flag" id="d-flag">🇺🇸</div>
+      <div>
+        <h2 id="d-name" style="margin-bottom:10px;">United States</h2>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;" id="d-badges"></div>
+        <p class="muted" style="margin-top:12px;font-size:.88rem;" id="d-desc"></p>
+      </div>
+      <a href="planner.html" class="btn btn-gold btn-sm">Plan My Move →</a>
+    </div>
+
+    <div data-tabs>
+      <div class="tabs" style="margin-bottom:28px;">
+        <button class="tab-btn active" data-tab="overview">Overview</button>
+        <button class="tab-btn" data-tab="visas">Visas</button>
+        <button class="tab-btn" data-tab="legal">Legal</button>
+        <button class="tab-btn" data-tab="culture">Culture</button>
+        <button class="tab-btn" data-tab="safety">Safety</button>
+        <button class="tab-btn" data-tab="emergency">Emergency</button>
+      </div>
+      <div class="tab-panel active" data-panel="overview"><div id="tab-overview"></div></div>
+      <div class="tab-panel" data-panel="visas"><div id="tab-visas"></div></div>
+      <div class="tab-panel" data-panel="legal"><div id="tab-legal"></div></div>
+      <div class="tab-panel" data-panel="culture"><div id="tab-culture"></div></div>
+      <div class="tab-panel" data-panel="safety"><div id="tab-safety"></div></div>
+      <div class="tab-panel" data-panel="emergency"><div id="tab-emergency"></div></div>
+    </div>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="footer-brand">Immigration<span style="color:var(--gold)">IQ</span></div>
+  <div class="footer-links"><a href="../index.html">Home</a><a href="planner.html">Planner</a><a href="learn.html">Learn</a><a href="dashboard.html">Dashboard</a></div>
+  <div class="footer-copy">© 2025 ImmigrationIQ</div>
+</footer>
+
+<script src="../js/shared.js"></script>
+<script>
+const COUNTRIES = [
+  { flag:'🇺🇸', name:'United States', region:'Americas', diff:'High', color:'#EF4444',
+    visas:['H-1B','F-1 Student','L-1','O-1','Green Card','B-1/B-2'],
+    desc:'The world\'s largest immigration destination. Complex system with employer-sponsored and diversity lottery pathways.',
+    overview:[['Capital','Washington D.C.'],['Currency','USD ($)'],['Official Language','English'],['Immigration Authority','USCIS'],['Processing Time','3–12 months (varies)'],['Work Rights','Visa-dependent']],
+    legal:['Maintain visa status at all times','Report address change (AR-11) within 10 days','Work only within authorized conditions','Health insurance strongly recommended','Driving laws vary by state — get local license'],
+    culture:['Punctuality is highly valued','Direct and confident communication style','Tipping 15–20% is standard at restaurants','Personal space respected — ~arm\'s length','Business attire expected in professional settings','Diversity celebrated — multicultural society'],
+    safety:['Dial 911 for all emergencies','Be aware of neighborhood safety ratings','Lock vehicles and do not leave valuables visible','Carry photocopies of all immigration documents','Avoid immigration fraud — use only USCIS-authorized agents','Healthcare costs are high — get insurance immediately'],
+    emergency:[['Emergency Services','911'],['Non-emergency Police','311'],['USCIS Contact Center','1-800-375-5283'],['Indian Embassy DC','(202) 939-7000'],['Crisis Hotline','988'],['Poison Control','1-800-222-1222']],
+    visaList:[{name:'H-1B',cat:'Work',time:'3–6 months',valid:'3 yrs renewable'},{name:'F-1 Student',cat:'Study',time:'2–3 months',valid:'Duration of study'},{name:'L-1',cat:'Intracompany',time:'1–3 months',valid:'3 yrs (L-1A 7 yrs)'},{name:'Green Card',cat:'PR',time:'1–10+ years',valid:'Permanent'},{name:'B-1/B-2',cat:'Visit',time:'2–4 weeks',valid:'Up to 6 months'}],
+  },
+  { flag:'🇨🇦', name:'Canada', region:'Americas', diff:'Medium', color:'#EF4444',
+    visas:['Express Entry','Study Permit','PGWP','PNP','Family Sponsorship'],
+    desc:'One of the most immigrant-friendly nations with points-based Express Entry and strong settlement services.',
+    overview:[['Capital','Ottawa'],['Currency','CAD ($)'],['Official Languages','English & French'],['Immigration Authority','IRCC'],['Processing Time','6–18 months'],['Work Rights','Often included']],
+    legal:['Report address changes within 180 days','Study permit: max 20 hrs/week off-campus work','PGWP must be applied within 180 days of graduation','SIN (Social Insurance Number) required for work','Renew PR card before travel outside Canada'],
+    culture:['Extreme politeness is a social norm','French required in Québec — learn basic phrases','Multicultural and bilingual society','Tipping 15–18% standard','Queue culture — wait your turn always','Direct but respectful communication'],
+    safety:['Emergency: 911 nationwide','Very safe country overall — low violent crime','Weather preparedness essential — winters are extreme','Health coverage varies by province','Keep SIN and PR documents secure at all times'],
+    emergency:[['Emergency','911'],['Indian High Commission Ottawa','1-613-744-3751'],['IRCC Helpdesk','1-888-242-2100'],['Telehealth Ontario','1-866-797-0000'],['Crisis Line','1-833-456-4566']],
+    visaList:[{name:'Express Entry',cat:'Skilled Work',time:'6 months',valid:'PR status'},{name:'Study Permit',cat:'Study',time:'4–8 weeks',valid:'Course duration'},{name:'PGWP',cat:'Post-Graduation',time:'2–8 weeks',valid:'Up to 3 years'},{name:'PNP',cat:'Provincial',time:'6–18 months',valid:'PR status'}],
+  },
+  { flag:'🇩🇪', name:'Germany', region:'Europe', diff:'Low', color:'#FBBF24',
+    visas:['EU Blue Card','Job Seeker Visa','Student Visa','Family Reunion'],
+    desc:'Europe\'s largest economy with a welcoming Skilled Immigration Act and free/low-cost education.',
+    overview:[['Capital','Berlin'],['Currency','EUR (€)'],['Official Language','German'],['Immigration Authority','BAMF'],['Processing Time','1–3 months'],['Work Rights','Yes for skilled workers']],
+    legal:['Register address (Anmeldung) within 14 days','Blocked account (Sperrkonto) required for students','Language requirement: A1–B1 German for most visas','Health insurance mandatory','Income threshold for Blue Card: €43,800+/yr'],
+    culture:['Strict punctuality — being late is disrespectful','Privacy highly respected — avoid personal questions','Formal address (Sie) in professional settings','Recycling mandatory and taken seriously','Direct, factual communication style','Sundays are quiet days — most shops closed'],
+    safety:['Emergency: 110 (police), 112 (fire/ambulance)','Low crime rate in most areas','Pickpocketing in tourist areas — stay vigilant','Carry travel insurance before arrival','Keep Aufenthaltstitel (residence permit) safe'],
+    emergency:[['Police','110'],['Ambulance / Fire','112'],['Indian Embassy Berlin','+49 30 2580 3000'],['BAMF Helpline','+49 911 943-0'],['Medical Emergency','112']],
+    visaList:[{name:'EU Blue Card',cat:'Skilled Work',time:'4–8 weeks',valid:'4 yrs renewable'},{name:'Job Seeker Visa',cat:'Job Search',time:'3–6 weeks',valid:'6 months'},{name:'Student Visa',cat:'Study',time:'4–6 weeks',valid:'Course duration'},{name:'Family Reunion',cat:'Family',time:'1–3 months',valid:'Tied to sponsor'}],
+  },
+  { flag:'🇦🇺', name:'Australia', region:'Oceania', diff:'Medium', color:'#FBBF24',
+    visas:['TSS 482','Student 500','PR 189','WHV 417','Partner 309'],
+    desc:'High quality of life with skilled migration programs and a clear pathway from student/work visa to PR.',
+    overview:[['Capital','Canberra'],['Currency','AUD ($)'],['Official Language','English'],['Immigration Authority','Home Affairs'],['Processing Time','2–18 months'],['Work Rights','Visa-dependent']],
+    legal:['Report change of address to Home Affairs','Student visa: max 48 hrs/fortnight during term','TSS holders tied to sponsor employer','Apply for PR at least 3 months before visa expiry','Medicare available for certain visa holders'],
+    culture:['Relaxed and informal social culture','"No worries" attitude — casual communication','BBQ culture and outdoor lifestyle valued','Punctuality respected in business settings','LGBTQ+ rights strongly protected','First Nations culture — show deep respect'],
+    safety:['Emergency: 000 (police/fire/ambulance)','Snake and spider awareness essential outdoors','Sun safety: UV levels extremely high — use SPF 50+','Beach safety: swim between the flags','Wildfire season preparedness (Oct–March)'],
+    emergency:[['Emergency','000'],['Indian High Commission Canberra','+61 2 6273 3999'],['Home Affairs','+61 2 6264 1111'],['Lifeline Crisis','13 11 14'],['Poison Info','13 11 26']],
+    visaList:[{name:'TSS 482',cat:'Skilled Work',time:'1–4 months',valid:'2–4 years'},{name:'Student 500',cat:'Study',time:'4–6 weeks',valid:'Course + 2 months'},{name:'Skilled Independent 189',cat:'PR',time:'6–12 months',valid:'Permanent'},{name:'WHV 417',cat:'Work & Holiday',time:'2–4 weeks',valid:'1 yr renewable'}],
+  },
+  { flag:'🇬🇧', name:'United Kingdom', region:'Europe', diff:'Medium', color:'#8B5CF6',
+    visas:['Skilled Worker','Student','ILR','BNO','Graduate Route'],
+    desc:'Points-based immigration system post-Brexit with strong global talent and student visa programs.',
+    overview:[['Capital','London'],['Currency','GBP (£)'],['Official Language','English'],['Immigration Authority','Home Office'],['Processing Time','3–8 weeks'],['Work Rights','Up to 20 hrs/wk (Student)']],
+    legal:['Biometric Residence Permit (BRP) must be collected','Report any criminal charge to Home Office','Right-to-work checks mandatory','NHS surcharge paid upfront with visa','ILR requires 5 years continuous residence'],
+    culture:['Polite and reserved communication style','Queueing is sacred — never jump the line','Tipping 10–12% at restaurants if service not included','Self-deprecating humour is cultural','Pubs are important social spaces','Weather is a national conversation topic'],
+    safety:['Emergency: 999 or 112','Pocket-picking common in London stations','Avoid unlicensed minicabs — use licensed taxis','Carry proof of identity at all times','NHS available for registered residents'],
+    emergency:[['Emergency','999 or 112'],['Indian High Commission London','+44 20 8747 2828'],['Home Office Helpline','0300 790 6268'],['Samaritans Crisis','116 123'],['Non-emergency Police','101']],
+    visaList:[{name:'Skilled Worker',cat:'Work',time:'3–8 weeks',valid:'Up to 5 years'},{name:'Student Visa',cat:'Study',time:'3 weeks',valid:'Course duration'},{name:'Graduate Route',cat:'Post-Study Work',time:'1–8 weeks',valid:'2–3 years'},{name:'ILR',cat:'Settlement',time:'6 months',valid:'Indefinite'}],
+  },
+  { flag:'🇸🇬', name:'Singapore', region:'Asia', diff:'Low', color:'#06B6D4',
+    visas:['Employment Pass','S Pass','Dependant Pass','LTVP'],
+    desc:'Asia\'s top financial hub with straightforward work visa processing and high quality of life.',
+    overview:[['Capital','Singapore City'],['Currency','SGD ($)'],['Official Languages','English, Malay, Mandarin, Tamil'],['Immigration Authority','ICA / MOM'],['Processing Time','3–8 weeks'],['Work Rights','Yes (EP/S Pass)']],
+    legal:['Register address with ICA within 14 days','Employment Pass tied to employer — change requires new application','Mandatory levy for S Pass holders'],
+    culture:['Extremely multicultural — Chinese, Malay, Indian, Western','Strict cleanliness laws — no littering, no gum','Chewing gum illegal','Respect for authority is expected','Food is central to social life — hawker culture is iconic'],
+    safety:['Emergency: 999 (police), 995 (fire/ambulance)','One of the world\'s safest cities','Zero tolerance for drugs — death penalty applies','Jaywalking fines enforced','Carry ID card at all times'],
+    emergency:[['Police','999'],['Fire / Ambulance','995'],['Indian HC Singapore','+65 6737 6777'],['MOM Helpline','6438 5122'],['Samaritans of Singapore','1-767']],
+    visaList:[{name:'Employment Pass',cat:'Skilled Work',time:'3–8 weeks',valid:'1–2 years renewable'},{name:'S Pass',cat:'Mid-Skill Work',time:'3–8 weeks',valid:'2 years'},{name:'Dependant Pass',cat:'Family',time:'3–8 weeks',valid:'Tied to holder'},{name:'LTVP',cat:'Long-term Visit',time:'3–6 weeks',valid:'1–5 years'}],
+  },
+  { flag:'🇦🇪', name:'UAE / Dubai', region:'Asia', diff:'Low', color:'#10B981',
+    visas:['Golden Visa','Work Visa','Student Visa','Freelance Permit'],
+    desc:'Tax-free salaries, world-class infrastructure, and one of the fastest growing expat destinations globally.',
+    overview:[['Capital','Abu Dhabi (UAE HQ)'],['Currency','AED (د.إ)'],['Official Language','Arabic (English widely spoken)'],['Immigration Authority','ICA / GDRFA'],['Processing Time','1–4 weeks'],['Work Rights','Yes (sponsored)']],
+    legal:['Employer sponsors most visas — tied to employer initially','Alcohol restricted — only licensed venues','Public display of affection restricted by law','Medical test required on arrival','Dress modestly in public areas'],
+    culture:['Islamic culture — respect Ramadan etiquette','Friday is the holy day — reduced hours','Right hand for greetings and eating','Hospitality is central — accept offered tea','Punctuality respected in business settings','Negative comments about leadership are illegal'],
+    safety:['Emergency: 999 (police), 998 (ambulance)','Extremely safe — very low violent crime','No jaywalking','Drug laws extremely strict — zero tolerance','Stay hydrated — extreme summer heat (45°C+)'],
+    emergency:[['Police','999'],['Ambulance','998'],['Indian Embassy Abu Dhabi','+971 2 4492700'],['Dubai Tourism','+971 4 282 1111'],['Consulate Dubai','+971 4 3970000']],
+    visaList:[{name:'Employment Visa',cat:'Work',time:'2–4 weeks',valid:'2 years renewable'},{name:'Golden Visa',cat:'Long-term',time:'4–6 weeks',valid:'5–10 years'},{name:'Student Visa',cat:'Study',time:'1–3 weeks',valid:'1 year'},{name:'Freelance Permit',cat:'Self-employed',time:'2–4 weeks',valid:'1–2 years'}],
+  },
+  { flag:'🇯🇵', name:'Japan', region:'Asia', diff:'High', color:'#EC4899',
+    visas:['Engineer/HSP','Student','Specified Skilled','Spouse/Child'],
+    desc:'Unique culture and one of the world\'s safest countries. Language barrier is the primary challenge.',
+    overview:[['Capital','Tokyo'],['Currency','JPY (¥)'],['Official Language','Japanese'],['Immigration Authority','MOJ/Immigration Services'],['Processing Time','1–3 months'],['Work Rights','Visa-dependent']],
+    legal:['Register at local ward office (ku) within 14 days','Always carry Residence Card (Zairyu Card)','Part-time work limited: 28 hrs/week (students)','Pension and health insurance enrollment mandatory','Notify immigration of any address change'],
+    culture:['Deeply respectful and formal society','Bowing is the primary greeting','Remove shoes when entering homes','Quiet on public transport — no phone calls','Punctuality is a social obligation','Waste sorting is mandatory and complex'],
+    safety:['Emergency: 110 (police), 119 (fire/ambulance)','Extremely safe — very low crime rate','Earthquake preparedness essential — register with local municipality','Follow typhoon warnings from JMA','Keep cash — many shops don\'t accept cards'],
+    emergency:[['Police','110'],['Fire / Ambulance','119'],['Indian Embassy Tokyo','+81 3 3262 2391'],['Japan Help Line (English)','0570-000-911'],['Disaster Hotline','#7119']],
+    visaList:[{name:'Engineer/Specialist',cat:'Work',time:'1–3 months',valid:'1–5 years'},{name:'Highly Skilled Professional',cat:'Skilled Work',time:'1–3 months',valid:'5 years → PR'},{name:'Student',cat:'Study',time:'1–2 months',valid:'Course duration'},{name:'Specified Skilled Worker',cat:'Skilled Labour',time:'1–3 months',valid:'1 yr renewable'}],
+  },
+];
+
+let activeFilter='all';
+function setFilter(f,btn){ activeFilter=f; document.querySelectorAll('.pill').forEach(p=>p.classList.remove('active')); btn.classList.add('active'); renderGrid(); }
+function filterCountries(){ renderGrid(); }
+
+function renderGrid(){
+  const q=document.getElementById('search').value.toLowerCase();
+  const grid=document.getElementById('countries-grid');
+  const filtered=COUNTRIES.filter(c=>{
+    const matchQ=c.name.toLowerCase().includes(q)||c.region.toLowerCase().includes(q);
+    const matchF=activeFilter==='all'||c.region.includes(activeFilter);
+    return matchQ&&matchF;
+  });
+  const diffColor={'High':'badge-red','Medium':'badge-gold','Low':'badge-green'};
+  grid.innerHTML=filtered.map((c,i)=>`
+    <div class="card card-tilt country-card reveal" style="transition-delay:${i*60}ms" onclick="openDetail('${c.name}')">
+      <div class="cc-flag">${c.flag}</div>
+      <div class="cc-name">${c.name}</div>
+      <div class="cc-region">${c.region}</div>
+      <div style="margin-bottom:12px;"><span class="badge ${diffColor[c.diff]||'badge-gold'}">${c.diff} Complexity</span></div>
+      <div class="cc-visa-tags">${c.visas.slice(0,3).map(v=>`<span class="badge badge-teal" style="font-size:.62rem;padding:2px 9px;">${v}</span>`).join('')}${c.visas.length>3?`<span style="font-size:.72rem;color:var(--muted);">+${c.visas.length-3}</span>`:''}</div>
+      <div class="cc-cta">View Full Guide →</div>
+    </div>`).join('');
+  document.querySelectorAll('#countries-grid .reveal').forEach((el,i)=>{ setTimeout(()=>el.classList.add('visible'),i*60); });
+}
+
+function openDetail(name){
+  const c=COUNTRIES.find(x=>x.name===name); if(!c) return;
+  const ov=document.getElementById('detail-overlay');
+  ov.style.display='block'; document.body.style.overflow='hidden';
+  document.getElementById('d-flag').textContent=c.flag;
+  document.getElementById('d-name').textContent=c.name;
+  document.getElementById('d-desc').textContent=c.desc;
+  const diffColor={'High':'badge-red','Medium':'badge-gold','Low':'badge-green'};
+  document.getElementById('d-badges').innerHTML=`<span class="badge ${diffColor[c.diff]}">${c.diff} Complexity</span><span class="badge badge-teal">${c.region}</span>`;
+
+  document.getElementById('tab-overview').innerHTML=`<div class="detail-grid"><div class="info-block"><div class="info-block-title">Key Facts</div>${c.overview.map(r=>`<div class="info-row"><span class="info-key">${r[0]}</span><span class="info-val">${r[1]}</span></div>`).join('')}</div><div class="info-block"><div class="info-block-title">Available Visa Categories</div>${c.visas.map(v=>`<div class="info-row"><span class="info-key">✦</span><span>${v}</span></div>`).join('')}</div></div>`;
+
+  document.getElementById('tab-visas').innerHTML=`<div style="display:flex;flex-direction:column;gap:14px;">${c.visaList.map(v=>`<div style="padding:20px 24px;border:1px solid var(--border2);border-radius:14px;background:var(--card);display:flex;gap:20px;align-items:flex-start;"><div style="width:44px;height:44px;border-radius:10px;background:rgba(212,168,67,.1);display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;">📋</div><div><div style="font-family:var(--ff-display);font-weight:700;margin-bottom:4px;">${v.name}</div><div style="font-size:.8rem;color:var(--muted);">Category: ${v.cat} · Processing: ${v.time} · Validity: ${v.valid}</div></div><a href="planner.html" class="btn btn-outline btn-sm" style="margin-left:auto;flex-shrink:0;">Plan →</a></div>`).join('')}</div>`;
+
+  document.getElementById('tab-legal').innerHTML=`<div style="display:flex;flex-direction:column;gap:10px;">${c.legal.map(r=>`<div style="padding:14px 18px;border:1px solid var(--border2);border-radius:10px;background:var(--card);display:flex;gap:12px;font-size:.84rem;"><span style="color:var(--gold);flex-shrink:0;">⚖️</span>${r}</div>`).join('')}</div>`;
+
+  document.getElementById('tab-culture').innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">${c.culture.map(r=>`<div style="padding:16px 18px;border:1px solid var(--border2);border-radius:10px;background:var(--card);display:flex;gap:12px;font-size:.84rem;"><span style="flex-shrink:0;">🌍</span>${r}</div>`).join('')}</div>`;
+
+  document.getElementById('tab-safety').innerHTML=`<div style="display:flex;flex-direction:column;gap:10px;">${c.safety.map(r=>`<div style="padding:14px 18px;border:1px solid rgba(239,68,68,.15);border-radius:10px;background:rgba(239,68,68,.04);display:flex;gap:12px;font-size:.84rem;"><span style="color:#EF4444;flex-shrink:0;">🛡️</span>${r}</div>`).join('')}</div>`;
+
+  document.getElementById('tab-emergency').innerHTML=`<div class="info-block"><div class="info-block-title">Emergency & Key Contacts</div>${c.emergency.map(e=>`<div class="info-row"><span class="info-key">${e[0]}</span><span class="info-val" style="color:var(--teal);font-family:var(--ff-display);font-weight:700;">${e[1]}</span></div>`).join('')}</div>`;
+
+  // re-init tabs
+  initTabs(ov);
+  setTimeout(()=>ov.scrollTo(0,0),10);
+}
+
+function closeDetail(){
+  document.getElementById('detail-overlay').style.display='none';
+  document.body.style.overflow='';
+}
+
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeDetail(); });
+renderGrid();
+</script>
+</body>
+</html>

@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>ImmigrationIQ — Navigate Every Border with Confidence</title>
+<link rel="stylesheet" href="css/global.css"/>
+<style>
+:root {
+  --gold:#FFC247;
+  --gold-lt:#FFDB87;
+  --gold-dk:#A96E10;
+  --teal:#1ED6FF;
+  --teal-lt:#86EAFF;
+}
+/* ── HERO ── */
+#hero { min-height:100vh; display:flex; align-items:center; position:relative; overflow:hidden; padding:120px 60px 140px; }
+.hero-bg { position:absolute; inset:0; z-index:0; }
+.hero-bg-orb { position:absolute; border-radius:50%; filter:blur(100px); pointer-events:none; }
+.orb1 { width:700px; height:700px; background:radial-gradient(circle,rgba(30,214,255,.14),transparent 70%); top:-200px; right:-200px; animation:orbFloat 12s ease-in-out infinite; }
+.orb2 { width:500px; height:500px; background:radial-gradient(circle,rgba(255,194,71,.12),transparent 70%); bottom:-100px; left:-100px; animation:orbFloat 16s ease-in-out infinite reverse; }
+@keyframes orbFloat { 0%,100%{transform:translateY(0) scale(1)} 50%{transform:translateY(-40px) scale(1.04)} }
+.hero-grid { width:100%; max-width:1320px; margin:0 auto; display:grid; grid-template-columns:minmax(0,1fr) minmax(360px,520px); gap:56px; align-items:center; position:relative; z-index:2; }
+.hero-content { max-width:560px; position:relative; z-index:3; }
+.hero-content h1 { margin-bottom:28px; max-width:7.5ch; font-size:clamp(3rem,6vw,5.4rem); line-height:.96; }
+.hero-content h1 .line2 { display:block; }
+.hero-actions { display:flex; gap:16px; flex-wrap:wrap; margin-top:44px; margin-bottom:56px; }
+.hero-trust { display:flex; align-items:center; gap:20px; }
+.trust-avatars { display:flex; }
+.trust-avatar { width:34px; height:34px; border-radius:50%; border:2px solid var(--deep); display:flex; align-items:center; justify-content:center; font-size:.85rem; margin-left:-10px; background:var(--navy2); }
+.trust-avatar:first-child { margin-left:0; }
+.trust-text { font-size:.8rem; color:var(--muted); }
+.trust-text strong { color:var(--white); display:block; }
+/* Stats bar */
+.hero-globe-side { position:relative; min-height:560px; display:flex; align-items:center; justify-content:flex-end; overflow:hidden; padding:24px 0 24px 24px; z-index:1; }
+#globe-wrap { position:relative; right:0; top:0; transform:none; width:min(100%,480px); aspect-ratio:1 / 1; max-width:100%; margin-left:auto; pointer-events:none; }
+#globe-canvas { display:block; width:100%; height:100%; }
+/* scroll indicator */
+.scroll-wrap { position:absolute; bottom:48px; left:50%; transform:translateX(-50%); z-index:3; }
+
+/* ── WHY SECTION ── */
+.why-grid { display:grid; grid-template-columns:1fr 1fr; gap:80px; align-items:center; }
+.why-problems { display:flex; flex-direction:column; gap:16px; margin-top:36px; }
+.problem-row { display:flex; gap:16px; align-items:flex-start; padding:18px 22px; background:var(--card); border:1px solid var(--border2); border-radius:12px; transition:border-color .3s,transform .3s; }
+.problem-row:hover { border-color:rgba(212,168,67,.3); transform:translateX(6px); }
+.problem-icon { width:38px; height:38px; border-radius:9px; background:rgba(212,168,67,.1); display:flex; align-items:center; justify-content:center; font-size:1rem; flex-shrink:0; }
+.problem-row h5 { font-family:var(--ff-display); font-weight:700; font-size:.9rem; margin-bottom:3px; }
+.problem-row p { font-size:.8rem; color:var(--muted); line-height:1.6; }
+/* stacked visual */
+.stacked-cards {
+  display:flex;
+  flex-direction:column;
+  gap:18px;
+  max-width:380px;
+  margin:0 auto;
+}
+.scard {
+  position:relative;
+  width:100%;
+  padding:24px;
+  border-radius:16px;
+  border:1px solid;
+  backdrop-filter:blur(12px); transition:transform .4s var(--ease-expo);
+}
+.scard:nth-child(1) {
+  background:rgba(9,184,181,.08);
+  border-color:rgba(9,184,181,.2);
+  transform:translateX(-26px) rotate(-2.5deg);
+}
+.scard:nth-child(2) {
+  background:rgba(212,168,67,.08);
+  border-color:rgba(212,168,67,.2);
+  transform:translateX(8px) rotate(1deg);
+}
+.scard:nth-child(3) {
+  background:rgba(255,255,255,.04);
+  border-color:rgba(255,255,255,.08);
+  transform:translateX(28px) rotate(-1.5deg);
+}
+.stacked-cards:hover .scard:nth-child(1) { transform:translateX(-18px) rotate(-2.5deg); }
+.stacked-cards:hover .scard:nth-child(2) { transform:translateX(14px) rotate(1deg); }
+.stacked-cards:hover .scard:nth-child(3) { transform:translateX(34px) rotate(-1.5deg); }
+.scard-icon { font-size:1.4rem; margin-bottom:12px; }
+.scard h4 { font-family:var(--ff-display); font-weight:700; font-size:.92rem; margin-bottom:5px; }
+.scard p { font-size:.78rem; color:var(--muted); line-height:1.6; }
+
+/* ── HOW IT WORKS ── */
+.how-bg { background:var(--navy); }
+.workflow { display:grid; grid-template-columns:repeat(5,1fr); gap:0; position:relative; margin-top:70px; }
+.workflow::before { content:''; position:absolute; top:36px; left:10%; width:80%; height:1px; background:linear-gradient(90deg,var(--teal),var(--gold),var(--teal)); }
+.wf-step { display:flex; flex-direction:column; align-items:center; text-align:center; padding:0 14px; position:relative; z-index:1; }
+.wf-node { width:72px; height:72px; border-radius:50%; border:2px solid var(--gold); background:var(--navy); display:flex; align-items:center; justify-content:center; font-size:1.5rem; margin-bottom:22px; position:relative; transition:all .3s; }
+.wf-node:hover { background:rgba(212,168,67,.12); box-shadow:0 0 28px rgba(212,168,67,.3); transform:scale(1.1); }
+.wf-num { position:absolute; top:-8px; right:-8px; width:22px; height:22px; background:var(--gold); color:var(--deep); border-radius:50%; font-family:var(--ff-display); font-weight:800; font-size:.62rem; display:flex; align-items:center; justify-content:center; }
+.wf-step h4 { font-family:var(--ff-display); font-weight:700; font-size:.85rem; margin-bottom:7px; }
+.wf-step p { font-size:.75rem; color:var(--muted); line-height:1.6; }
+
+/* ── FEATURES ── */
+.features-header { display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:60px; }
+.features-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:22px; }
+.feature-card { cursor:pointer; }
+.feature-card .fc-num { font-family:var(--ff-display); font-size:.68rem; letter-spacing:.1em; color:var(--muted); margin-bottom:20px; }
+.feature-card .fc-icon { font-size:2rem; margin-bottom:18px; }
+.feature-card h3 { font-size:1.05rem; margin-bottom:12px; line-height:1.3; }
+.feature-card p { font-size:.82rem; color:var(--muted); line-height:1.75; }
+.feature-card .fc-tag { margin-top:20px; }
+.feature-card.feat-gold { background:linear-gradient(135deg,rgba(212,168,67,.1),rgba(212,168,67,.03)); border-color:rgba(212,168,67,.3); }
+
+/* ── COUNTRIES PREVIEW ── */
+.countries-preview { display:grid; grid-template-columns:repeat(4,1fr); gap:20px; margin-top:60px; }
+.cp-card { text-align:center; padding:32px 24px; }
+.cp-card .flag { font-size:3.2rem; margin-bottom:14px; line-height:1; }
+.cp-card h4 { font-family:var(--ff-display); font-weight:700; margin-bottom:10px; }
+.cp-card p { font-size:.78rem; color:var(--muted); line-height:1.6; }
+
+/* ── CTA ── */
+.cta-section { text-align:center; position:relative; overflow:hidden; }
+.cta-glow { position:absolute; inset:0; background:radial-gradient(ellipse at 50% 50%,rgba(212,168,67,.07),transparent 70%); }
+
+/* ── SCAM FEED ── */
+.alerts-wrap { display:grid; grid-template-columns:minmax(0,1fr) minmax(280px,360px); gap:24px; align-items:start; margin-top:42px; }
+.alerts-panel { border:1px solid rgba(239,68,68,.22); background:linear-gradient(180deg,rgba(239,68,68,.06),rgba(255,255,255,.02)); border-radius:18px; overflow:hidden; }
+.alerts-head { display:flex; justify-content:space-between; align-items:center; padding:16px 20px; border-bottom:1px solid rgba(255,255,255,.07); }
+.alerts-live { display:inline-flex; align-items:center; gap:8px; font-family:var(--ff-display); font-size:.72rem; letter-spacing:.1em; text-transform:uppercase; color:#ff8e8e; }
+.alerts-dot { width:8px; height:8px; border-radius:50%; background:#ff5858; box-shadow:0 0 0 0 rgba(255,88,88,.5); animation:livePulse 1.8s infinite; }
+@keyframes livePulse { 0%{box-shadow:0 0 0 0 rgba(255,88,88,.55)} 70%{box-shadow:0 0 0 12px rgba(255,88,88,0)} 100%{box-shadow:0 0 0 0 rgba(255,88,88,0)} }
+.alerts-time { font-size:.76rem; color:var(--muted); }
+.alerts-list { padding:10px; display:flex; flex-direction:column; gap:8px; max-height:420px; overflow:auto; }
+.alert-item { display:grid; grid-template-columns:auto 1fr auto; gap:12px; align-items:start; background:rgba(5,9,22,.82); border:1px solid var(--border2); border-radius:12px; padding:12px; }
+.alert-icon { width:30px; height:30px; border-radius:8px; display:flex; align-items:center; justify-content:center; background:rgba(239,68,68,.12); color:#ff8a8a; font-size:.95rem; }
+.alert-item h4 { font-size:.84rem; line-height:1.35; margin-bottom:4px; }
+.alert-meta { font-size:.73rem; color:var(--muted); display:flex; gap:10px; flex-wrap:wrap; }
+.risk-badge { font-family:var(--ff-display); font-size:.64rem; letter-spacing:.08em; text-transform:uppercase; border:1px solid; border-radius:99px; padding:4px 8px; white-space:nowrap; }
+.risk-high { color:#ff9e9e; border-color:rgba(239,68,68,.4); background:rgba(239,68,68,.14); }
+.risk-medium { color:#ffd694; border-color:rgba(212,168,67,.42); background:rgba(212,168,67,.14); }
+.risk-low { color:#7ce7c4; border-color:rgba(16,185,129,.42); background:rgba(16,185,129,.12); }
+.alerts-aside { display:flex; flex-direction:column; gap:14px; }
+.alert-stat { background:var(--card); border:1px solid var(--border2); border-radius:14px; padding:18px; }
+.alert-stat h5 { font-family:var(--ff-display); font-size:.8rem; margin-bottom:6px; }
+.alert-stat p { font-size:.76rem; color:var(--muted); line-height:1.6; }
+
+/* ── GLOSSARY ── */
+.glossary-search {
+  width:100%;
+  max-width:360px;
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(212,168,67,.2);
+  border-radius:10px;
+  color:var(--white);
+  font-size:.9rem;
+  padding:12px 14px;
+}
+.glossary-search:focus { outline:none; border-color:rgba(212,168,67,.55); box-shadow:0 0 0 4px rgba(212,168,67,.08); }
+
+.footer-glossary-btn {
+  font-size:.82rem;
+  color:var(--muted);
+  transition:color .25s;
+  background:none;
+  border:none;
+  padding:0;
+}
+.footer-glossary-btn:hover { color:var(--gold); }
+
+/* ── GLOSSARY MODAL ── */
+.glossary-modal {
+  position:fixed;
+  inset:0;
+  z-index:1000;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:26px;
+}
+.glossary-modal.open { display:flex; }
+.glossary-modal-backdrop { position:absolute; inset:0; background:rgba(3,6,14,.78); backdrop-filter:blur(6px); }
+.glossary-modal-card {
+  position:relative;
+  width:min(860px,100%);
+  max-height:min(80vh,700px);
+  overflow:hidden;
+  border-radius:16px;
+  border:1px solid rgba(212,168,67,.28);
+  background:linear-gradient(180deg,rgba(10,15,34,.98),rgba(4,7,16,.98));
+}
+.glossary-modal-head { display:flex; justify-content:space-between; align-items:center; gap:12px; padding:18px 20px; border-bottom:1px solid rgba(255,255,255,.08); }
+.glossary-modal-head h3 { font-size:1.05rem; }
+.glossary-close { color:var(--muted); font-size:1.2rem; line-height:1; padding:4px 8px; border-radius:8px; }
+.glossary-close:hover { color:var(--white); background:rgba(255,255,255,.08); }
+.glossary-modal-tools { padding:14px 20px; border-bottom:1px solid rgba(255,255,255,.06); }
+.glossary-results { max-height:52vh; overflow:auto; padding:16px 20px 20px; display:grid; gap:10px; }
+.glossary-result { border:1px solid rgba(255,255,255,.08); background:rgba(255,255,255,.02); border-radius:12px; padding:12px 14px; }
+.glossary-result h4 { font-family:var(--ff-display); font-size:.86rem; margin-bottom:6px; }
+.glossary-result p { font-size:.8rem; color:var(--muted); line-height:1.6; }
+.glossary-empty { color:var(--muted); font-size:.85rem; text-align:center; padding:20px 0; }
+
+/* responsive */
+@media(max-width:1100px){
+  .hero-grid { grid-template-columns:1fr; }
+  .hero-content { max-width:680px; }
+  .hero-content h1 { max-width:none; font-size:clamp(3.2rem,7vw,6.5rem); line-height:1.05; }
+  #globe-wrap { display:none; }
+  .stats-bar { display:none; }
+  .workflow { grid-template-columns:1fr 1fr; gap:40px; }
+  .workflow::before { display:none; }
+  .features-grid { grid-template-columns:1fr 1fr; }
+  .countries-preview { grid-template-columns:1fr 1fr; }
+  .why-grid { grid-template-columns:1fr; gap:40px; }
+  .alerts-wrap { grid-template-columns:1fr; }
+  #hero { padding:120px 28px 80px; }
+  .features-header { flex-direction:column; gap:20px; align-items:flex-start; }
+  .stacked-cards { max-width:100%; }
+  .scard:nth-child(1),
+  .scard:nth-child(2),
+  .scard:nth-child(3) { transform:none; }
+  .stacked-cards:hover .scard:nth-child(1),
+  .stacked-cards:hover .scard:nth-child(2),
+  .stacked-cards:hover .scard:nth-child(3) { transform:none; }
+}
+@media(max-width:1280px){
+  .hero-grid { grid-template-columns:minmax(0,1fr) minmax(300px,440px); gap:36px; }
+  .hero-globe-side { min-height:500px; }
+  #globe-wrap { max-width:420px; }
+}
+@media(max-width:600px){
+  .features-grid { grid-template-columns:1fr; }
+  .countries-preview { grid-template-columns:1fr; }
+}
+</style>
+</head>
+<body>
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursor-ring"></div>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <a href="index.html" class="navbar-logo">Immigration<span>IQ</span></a>
+  <div class="navbar-links">
+    <a href="index.html">Home</a>
+    <a href="pages/planner.html">Planner</a>
+    <a href="pages/countries.html">Countries</a>
+    <a href="pages/learn.html">Learn</a>
+    <a href="pages/safety.html">Safety</a>
+    <a href="pages/dashboard.html">Dashboard</a>
+    <a href="pages/login.html" class="navbar-auth-link" data-auth="guest">Log In</a>
+    <a href="pages/signup.html" class="navbar-auth-link navbar-auth-signup" data-auth="guest">Sign Up</a>
+    <a href="pages/dashboard.html" class="navbar-auth-user" data-auth="user" hidden><span class="navbar-user-avatar" data-auth-avatar>IQ</span><span class="navbar-user-name" data-auth-name>Account</span></a>
+    <button type="button" class="navbar-auth-logout" data-auth="user" data-auth-logout data-auth-redirect="index.html" hidden>Log Out</button>
+    <a href="pages/planner.html" class="navbar-cta">Get Started →</a>
+  </div>
+  <button class="hamburger"><span></span><span></span><span></span></button>
+</nav>
+
+<!-- ════ HERO ════ -->
+<section id="hero">
+  <div class="hero-bg">
+    <div class="hero-bg-orb orb1"></div>
+    <div class="hero-bg-orb orb2"></div>
+    <canvas id="particle-canvas" style="position:absolute;inset:0;pointer-events:none;z-index:1;"></canvas>
+  </div>
+
+  <div class="hero-grid">
+    <!-- Left content -->
+    <div class="hero-content reveal">
+      <div class="hero-eyebrow">
+        <span class="hero-eyebrow-dot"></span>
+        AI-Powered Immigration Intelligence
+      </div>
+      <h1>
+        Navigate Every<br/>
+        <span class="grad-gold line2">Border</span> with<br/>
+        Confidence
+      </h1>
+      <p class="lead" style="max-width:560px;margin-top:24px;">
+        Personalized immigration plans, country guides, cultural learning modules, and safety awareness — all in one platform. Built for the modern global citizen.
+      </p>
+      <div class="hero-actions">
+        <a href="pages/planner.html" class="btn btn-gold">Build My Plan →</a>
+        <a href="pages/countries.html" class="btn btn-outline">Explore Countries</a>
+      </div>
+      <div class="hero-trust">
+        <div class="trust-avatars">
+          <div class="trust-avatar">🇮🇳</div>
+          <div class="trust-avatar">🇧🇷</div>
+          <div class="trust-avatar">🇵🇭</div>
+          <div class="trust-avatar">🇲🇽</div>
+          <div class="trust-avatar" style="background:rgba(212,168,67,.2);color:var(--gold);font-size:.65rem;font-family:var(--ff-display);font-weight:700;">+</div>
+        </div>
+        <div class="trust-text">
+          <strong>195+ Countries Covered</strong>
+          Multilingual · Ethical AI · Free to Use
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: 3D Globe -->
+    <div class="hero-globe-side reveal right" style="transition-delay:.15s">
+      <div id="globe-wrap">
+        <canvas id="globe-canvas"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats bar -->
+  <div class="stats-bar">
+    <div class="stats-bar-item">
+      <div class="stat-num" data-count="195" data-suffix="+">0+</div>
+      <div class="stat-label">Countries Covered</div>
+    </div>
+    <div class="stats-bar-item">
+      <div class="stat-num" data-count="40" data-suffix="+">0+</div>
+      <div class="stat-label">Languages</div>
+    </div>
+    <div class="stats-bar-item">
+      <div class="stat-num" data-count="16">0</div>
+      <div class="stat-label">Research Papers</div>
+    </div>
+    <div class="stats-bar-item">
+      <div class="stat-num" data-count="100" data-suffix="%">0%</div>
+      <div class="stat-label">Ethical AI</div>
+    </div>
+  </div>
+
+  <div class="scroll-wrap">
+    <div class="scroll-indicator">
+      <span>Scroll</span>
+      <div class="scroll-mouse"><div class="scroll-dot"></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ════ SCAM ALERT FEED ════ -->
+<section class="section" style="background:linear-gradient(180deg,rgba(80,9,9,.16),rgba(8,10,22,.85));">
+  <div class="container">
+    <span class="tag">Fraud Watch</span>
+    <h2>Live Scam <span class="grad-gold">Alert Feed</span></h2>
+    <p class="lead" style="margin-top:14px;max-width:760px;">Verified community and agency reports of immigration scams, fake job offers, and forged documentation requests. Check risk levels before you act.</p>
+
+    <div class="alerts-wrap" data-stagger>
+      <div class="alerts-panel reveal">
+        <div class="alerts-head">
+          <div class="alerts-live"><span class="alerts-dot"></span>Live Verified Reports</div>
+          <div class="alerts-time" id="alerts-last-updated">Updated just now</div>
+        </div>
+        <div class="alerts-list" id="alerts-feed"></div>
+      </div>
+
+      <div class="alerts-aside reveal right" style="transition-delay:.08s">
+        <div class="alert-stat">
+          <h5>Verification Layers</h5>
+          <p>Each alert is tagged after cross-checking user submissions with embassy notices, government advisories, and moderated community evidence.</p>
+        </div>
+        <div class="alert-stat">
+          <h5>Risk Levels</h5>
+          <p><span class="risk-badge risk-high">High</span> Immediate financial/legal danger. <span class="risk-badge risk-medium">Medium</span> suspicious behavior. <span class="risk-badge risk-low">Low</span> caution and monitor.</p>
+        </div>
+        <div class="alert-stat">
+          <h5>Tip</h5>
+          <p>Never pay visa fees via personal wallets, gift cards, or unknown agents. Official channels should match verified embassy instructions.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════ WHY ════ -->
+<section class="section">
+  <div class="container">
+    <div class="why-grid">
+      <div>
+        <span class="tag">The Problem</span>
+        <h2>Why Immigrants <span class="grad-gold">Struggle</span></h2>
+        <p class="lead" style="margin-top:18px;">Moving abroad is complex. Information is scattered, outdated, and hard to understand. One mistake can cost thousands — or worse.</p>
+        <div class="why-problems" data-stagger>
+          <div class="problem-row reveal">
+            <div class="problem-icon">⚠️</div>
+            <div><h5>Scattered Information</h5><p>Visa rules, cultural norms, and safety tips are spread across hundreds of sites with no single trusted source.</p></div>
+          </div>
+          <div class="problem-row reveal">
+            <div class="problem-icon">🔒</div>
+            <div><h5>Legal Vulnerability</h5><p>Unknowingly violating visa conditions can result in deportation, bans, and serious legal consequences.</p></div>
+          </div>
+          <div class="problem-row reveal">
+            <div class="problem-icon">🎯</div>
+            <div><h5>Immigration Scams</h5><p>Fraudulent agents and misleading offers target unprepared immigrants, causing financial and legal harm.</p></div>
+          </div>
+          <div class="problem-row reveal">
+            <div class="problem-icon">🌐</div>
+            <div><h5>Language Barriers</h5><p>Critical legal documents and official guidance are rarely available in immigrants' native languages.</p></div>
+          </div>
+        </div>
+      </div>
+      <div class="reveal right" style="transition-delay:.1s">
+        <div class="stacked-cards">
+          <div class="scard">
+            <div class="scard-icon">🌍</div>
+            <h4>Multilingual Guidance</h4>
+            <p>Get immigration advice in your native language — English, Hindi, Spanish, Arabic and 36 more.</p>
+          </div>
+          <div class="scard">
+            <div class="scard-icon">⚖️</div>
+            <h4>Legal Compliance Engine</h4>
+            <p>Rule-based logic ensures every recommendation is transparent, ethical, and legally grounded.</p>
+          </div>
+          <div class="scard">
+            <div class="scard-icon">🛡️</div>
+            <h4>Safety First Approach</h4>
+            <p>Proactive safety alerts, scam recognition, and emergency protocols built into every plan.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════ HOW IT WORKS ════ -->
+<section class="section how-bg">
+  <div class="container">
+    <div style="text-align:center;max-width:680px;margin:0 auto 0">
+      <span class="tag">How It Works</span>
+      <h2>Your Path to <span class="grad-gold">Safe Adaptation</span></h2>
+      <p class="lead" style="margin-top:18px;">Five steps from confusion to confidence. Our intelligent system guides you every step of the way.</p>
+    </div>
+    <div class="workflow" data-stagger>
+      <div class="wf-step reveal"><div class="wf-node">🛂<span class="wf-num">1</span></div><h4>Enter Profile</h4><p>Passport country, destination, and visa type</p></div>
+      <div class="wf-step reveal"><div class="wf-node">🔍<span class="wf-num">2</span></div><h4>AI Analysis</h4><p>Intelligent engine processes your unique situation</p></div>
+      <div class="wf-step reveal"><div class="wf-node">🌐<span class="wf-num">3</span></div><h4>Plan Generated</h4><p>Personalized immigration prep plan in seconds</p></div>
+      <div class="wf-step reveal"><div class="wf-node">📚<span class="wf-num">4</span></div><h4>Learn & Prepare</h4><p>Complete targeted learning modules</p></div>
+      <div class="wf-step reveal"><div class="wf-node">✅<span class="wf-num">5</span></div><h4>Move Safely</h4><p>Track compliance and stay updated</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ════ FEATURES ════ -->
+<section class="section">
+  <div class="container">
+    <div class="features-header">
+      <div>
+        <span class="tag">Platform Features</span>
+        <h2>Everything You <span class="grad-gold">Need</span></h2>
+      </div>
+      <a href="pages/planner.html" class="btn btn-outline btn-sm">Start Planning →</a>
+    </div>
+    <div class="features-grid" data-stagger>
+      <div class="card card-tilt feature-card reveal">
+        <div class="fc-num">01</div><div class="fc-icon">🗂️</div>
+        <h3>Personalized Immigration Planner</h3>
+        <p>Generate a full prep plan based on your passport, destination, and visa type. Includes documents, costs, timelines, and cultural tips.</p>
+        <div class="fc-tag"><span class="badge badge-teal">Core Feature</span></div>
+      </div>
+      <div class="card card-tilt feature-card feat-gold reveal">
+        <div class="fc-num">02</div><div class="fc-icon">🌍</div>
+        <h3>Country-Specific Guides</h3>
+        <p>Deep-dive guides for every major destination. Visa overviews, cultural norms, safety recommendations, and emergency contacts.</p>
+        <div class="fc-tag"><span class="badge badge-gold">195+ Countries</span></div>
+      </div>
+      <div class="card card-tilt feature-card reveal">
+        <div class="fc-num">03</div><div class="fc-icon">📚</div>
+        <h3>Learning Hub</h3>
+        <p>Structured modules on immigration law, cultural adaptation, workplace rights, and emergency preparedness. Interactive quizzes included.</p>
+        <div class="fc-tag"><span class="badge badge-purple">6 Modules</span></div>
+      </div>
+      <div class="card card-tilt feature-card reveal">
+        <div class="fc-num">04</div><div class="fc-icon">🛡️</div>
+        <h3>Safety Awareness Training</h3>
+        <p>Scenario-based guidance for recognizing scams, handling emergencies abroad, understanding workplace rights, and staying safe.</p>
+        <div class="fc-tag"><span class="badge badge-red">Real Scenarios</span></div>
+      </div>
+      <div class="card card-tilt feature-card reveal">
+        <div class="fc-num">05</div><div class="fc-icon">📊</div>
+        <h3>Personal Dashboard</h3>
+        <p>Track your preparation progress, manage checklists, receive visa expiry alerts, and store all your immigration plans in one place.</p>
+        <div class="fc-tag"><span class="badge badge-green">Progress Tracking</span></div>
+      </div>
+      <div class="card card-tilt feature-card reveal">
+        <div class="fc-num">06</div><div class="fc-icon">📄</div>
+        <h3>Exportable Plans</h3>
+        <p>Download your complete immigration preparation plan as a PDF or Word document. Keep it handy during your move abroad.</p>
+        <div class="fc-tag"><span class="badge badge-teal">PDF · DOCX</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════ COUNTRIES PREVIEW ════ -->
+<section class="section" style="background:var(--navy);overflow:hidden;position:relative;">
+  <div class="line-deco" style="top:0;left:0;right:0;"></div>
+  <div class="container">
+    <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:16px;">
+      <div>
+        <span class="tag">Top Destinations</span>
+        <h2>Explore <span class="grad-teal">Country Guides</span></h2>
+      </div>
+      <a href="pages/countries.html" class="btn btn-ghost btn-sm">View All →</a>
+    </div>
+    <p class="lead" style="margin-bottom:0">Pick any destination and get a complete immigration guide in seconds.</p>
+    <div class="countries-preview" data-stagger>
+      <div class="card card-tilt cp-card reveal" onclick="location.href='pages/countries.html'" style="cursor:pointer">
+        <div class="flag">🇺🇸</div>
+        <h4>United States</h4>
+        <p>Work, student, and immigration visa guides. H-1B, F-1, Green Card and more.</p>
+        <div style="margin-top:14px;"><span class="badge badge-red">High Complexity</span></div>
+      </div>
+      <div class="card card-tilt cp-card reveal" onclick="location.href='pages/countries.html'" style="cursor:pointer">
+        <div class="flag">🇨🇦</div>
+        <h4>Canada</h4>
+        <p>Express Entry, PNP, study permits. One of the most immigrant-friendly nations.</p>
+        <div style="margin-top:14px;"><span class="badge badge-gold">Medium</span></div>
+      </div>
+      <div class="card card-tilt cp-card reveal" onclick="location.href='pages/countries.html'" style="cursor:pointer">
+        <div class="flag">🇩🇪</div>
+        <h4>Germany</h4>
+        <p>EU Blue Card, job seeker visa, and one of Europe's fastest growing expat hubs.</p>
+        <div style="margin-top:14px;"><span class="badge badge-green">Low Complexity</span></div>
+      </div>
+      <div class="card card-tilt cp-card reveal" onclick="location.href='pages/countries.html'" style="cursor:pointer">
+        <div class="flag">🇦🇺</div>
+        <h4>Australia</h4>
+        <p>Skilled worker visas, WHV, student pathways to permanent residency.</p>
+        <div style="margin-top:14px;"><span class="badge badge-gold">Medium</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════ CTA ════ -->
+<section class="section cta-section">
+  <div class="cta-glow"></div>
+  <div class="container-sm" style="text-align:center;position:relative;z-index:2;">
+    <span class="tag" style="justify-content:center;">Ready to Begin?</span>
+    <h2>Your Safer Immigration <span class="grad-gold">Journey Starts Here</span></h2>
+    <p class="lead" style="margin:24px auto;max-width:580px;">Set up your profile in minutes. Get a complete, personalized immigration plan instantly — free, multilingual, and built on ethical AI.</p>
+    <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:40px;">
+      <a href="pages/planner.html" class="btn btn-gold">Build My Immigration Plan →</a>
+      <a href="pages/learn.html" class="btn btn-ghost">Explore Learning Hub</a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-brand">Immigration<span style="color:var(--gold)">IQ</span><div style="font-size:.75rem;color:var(--muted);font-weight:400;margin-top:4px;">Intelligent Immigration Learning & Safety Platform</div></div>
+  <div class="footer-links">
+    <a href="index.html">Home</a>
+    <a href="pages/planner.html">Planner</a>
+    <a href="pages/countries.html">Countries</a>
+    <a href="pages/learn.html">Learn</a>
+    <a href="pages/safety.html">Safety</a>
+    <a href="pages/dashboard.html">Dashboard</a>
+    <button type="button" id="open-glossary-modal" class="footer-glossary-btn">Glossary</button>
+  </div>
+  <div class="footer-copy">© 2025 ImmigrationIQ · SRM Institute · Aditya Raman · Vyom Pandey · Mohammed Rayyan Basha</div>
+</footer>
+
+<div class="glossary-modal" id="glossary-modal" aria-hidden="true" role="dialog" aria-label="Immigration glossary dialog">
+  <div class="glossary-modal-backdrop" data-close-glossary></div>
+  <div class="glossary-modal-card">
+    <div class="glossary-modal-head">
+      <h3>ImmigrationIQ Glossary</h3>
+      <button type="button" class="glossary-close" data-close-glossary aria-label="Close glossary">✕</button>
+    </div>
+    <div class="glossary-modal-tools">
+      <input id="glossary-modal-search" class="glossary-search" type="search" placeholder="Search any immigration term..." aria-label="Search full glossary"/>
+    </div>
+    <div class="glossary-results" id="glossary-modal-results"></div>
+  </div>
+</div>
+
+<script src="js/shared.js"></script>
+<script>
+  /* Globe */
+  initEarth('globe-canvas');
+
+  /* Particle canvas */
+  (function(){
+    const c=document.getElementById('particle-canvas');
+    c.width=c.offsetWidth; c.height=c.offsetHeight;
+    const ctx=c.getContext('2d');
+    const particles=[];
+    for(let i=0;i<60;i++) particles.push({x:Math.random()*c.width,y:Math.random()*c.height,r:Math.random()*1.4+.3,vx:(Math.random()-.5)*.3,vy:-(Math.random()*.4+.1),a:Math.random(),gold:Math.random()>.5});
+    (function loop(){
+      ctx.clearRect(0,0,c.width,c.height);
+      particles.forEach(p=>{
+        p.x+=p.vx; p.y+=p.vy; p.a+=.008;
+        if(p.y<-5){p.y=c.height+5;p.x=Math.random()*c.width;}
+        const alpha=(Math.sin(p.a)*.3+.5);
+        ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+        ctx.fillStyle=p.gold?`rgba(212,168,67,${alpha})`:`rgba(9,184,181,${alpha*.7})`;
+        ctx.fill();
+      });
+      requestAnimationFrame(loop);
+    })();
+    window.addEventListener('resize',()=>{c.width=c.offsetWidth;c.height=c.offsetHeight;});
+  })();
+
+  /* Scam feed + glossary */
+  (function(){
+    const feedEl = document.getElementById('alerts-feed');
+    const updatedEl = document.getElementById('alerts-last-updated');
+    const glossaryModalEl = document.getElementById('glossary-modal-results');
+    const modalSearch = document.getElementById('glossary-modal-search');
+    const modal = document.getElementById('glossary-modal');
+    const openModalBtn = document.getElementById('open-glossary-modal');
+
+    const alerts = [
+      { title:'Fake Job Sponsorship Letters Shared in Telegram Groups', region:'UAE corridor', channel:'Community + Embassy', risk:'high', ago:'3m ago' },
+      { title:'Phishing Site Mimicking Visa Fee Portal', region:'Canada applicants', channel:'Government advisory', risk:'high', ago:'8m ago' },
+      { title:'Unlicensed Agent Requesting Cash-Only Medical Booking', region:'UK route', channel:'User verified', risk:'medium', ago:'14m ago' },
+      { title:'Forged Biometric Appointment SMS Circulating', region:'Schengen routes', channel:'Embassy bulletin', risk:'medium', ago:'22m ago' },
+      { title:'Suspicious "Guaranteed Approval" Ads Flagged', region:'Australia track', channel:'Moderator review', risk:'low', ago:'31m ago' }
+    ];
+
+    const glossary = [
+      { term:'Visa Conditions', desc:'Specific rules attached to your visa, such as work limits, study limits, reporting requirements, or travel restrictions.' },
+      { term:'Biometrics', desc:'Identity verification process using fingerprints, facial photos, or iris scans submitted during visa processing.' },
+      { term:'Overstay', desc:'Remaining in a country after your authorized visa period expires, which can cause fines, bans, or deportation.' },
+      { term:'Sponsorship', desc:'When an employer, family member, or institution formally supports your visa application and responsibility conditions.' },
+      { term:'Proof of Funds', desc:'Official evidence showing you have enough money to support your stay, often required for student or visitor visas.' },
+      { term:'Entry Clearance', desc:'Permission granted before travel that allows you to enter a destination country for the approved purpose.' },
+      { term:'Work Authorization', desc:'Legal approval that defines if, where, and how many hours you can work while in the destination country.' },
+      { term:'Permanent Residency', desc:'Long-term status allowing you to live in a country indefinitely, usually with rights similar to citizens except voting.' },
+      { term:'Dependent Visa', desc:'Visa category for spouses, children, or eligible family members joining a primary visa holder.' }
+    ];
+
+    function riskClass(level){
+      if(level==='high') return 'risk-badge risk-high';
+      if(level==='medium') return 'risk-badge risk-medium';
+      return 'risk-badge risk-low';
+    }
+
+    function riskLabel(level){
+      return level.charAt(0).toUpperCase() + level.slice(1) + ' Risk';
+    }
+
+    function renderAlerts(list){
+      if(!feedEl) return;
+      feedEl.innerHTML = list.map(item => `
+        <article class="alert-item reveal visible">
+          <div class="alert-icon">⚠</div>
+          <div>
+            <h4>${item.title}</h4>
+            <div class="alert-meta">
+              <span>${item.region}</span>
+              <span>Verified: ${item.channel}</span>
+              <span>${item.ago}</span>
+            </div>
+          </div>
+          <span class="${riskClass(item.risk)}">${riskLabel(item.risk)}</span>
+        </article>
+      `).join('');
+    }
+
+    function renderGlossary(list, target){
+      if(!target) return;
+      if(!list.length){
+        target.innerHTML = '<div class="glossary-empty">No matching terms found. Try another keyword.</div>';
+        return;
+      }
+      target.innerHTML = list.map(item => `
+        <article class="glossary-result">
+          <h4>${item.term}</h4>
+          <p>${item.desc}</p>
+        </article>
+      `).join('');
+    }
+
+    function filterGlossary(query){
+      const q = (query || '').trim().toLowerCase();
+      if(!q) return glossary;
+      return glossary.filter(item =>
+        item.term.toLowerCase().includes(q) || item.desc.toLowerCase().includes(q)
+      );
+    }
+
+    function openGlossary(term){
+      if(!modal) return;
+      modal.classList.add('open');
+      modal.setAttribute('aria-hidden','false');
+      document.body.style.overflow = 'hidden';
+      if(modalSearch){
+        modalSearch.value = term || '';
+        const filtered = filterGlossary(modalSearch.value);
+        renderGlossary(filtered, glossaryModalEl);
+        modalSearch.focus();
+      }
+    }
+
+    function closeGlossary(){
+      if(!modal) return;
+      modal.classList.remove('open');
+      modal.setAttribute('aria-hidden','true');
+      document.body.style.overflow = '';
+    }
+
+    renderAlerts(alerts);
+    renderGlossary(glossary, glossaryModalEl);
+
+    if(updatedEl){
+      let ticks = 0;
+      setInterval(()=>{
+        ticks += 1;
+        updatedEl.textContent = `Updated ${ticks} min ago`;
+      }, 60000);
+    }
+
+    if(feedEl){
+      setInterval(()=>{
+        const samples = [
+          { title:'Impersonation Email Asking for Passport Scan', region:'Global', channel:'Community + Moderator', risk:'high', ago:'just now' },
+          { title:'Unauthorized Agent Promoting "Priority Slot" Payments', region:'India to EU route', channel:'User verified', risk:'medium', ago:'just now' },
+          { title:'Fake Scholarship Visa Form Circulating on Social Media', region:'Canada student track', channel:'Moderator review', risk:'low', ago:'just now' }
+        ];
+        alerts.unshift(samples[Math.floor(Math.random() * samples.length)]);
+        alerts.splice(6);
+        renderAlerts(alerts);
+      }, 24000);
+    }
+
+    if(modalSearch){
+      modalSearch.addEventListener('input', ()=>{
+        renderGlossary(filterGlossary(modalSearch.value), glossaryModalEl);
+      });
+    }
+
+    if(openModalBtn){
+      openModalBtn.addEventListener('click', ()=> openGlossary(''));
+    }
+
+    document.querySelectorAll('[data-close-glossary]').forEach(btn=>{
+      btn.addEventListener('click', closeGlossary);
+    });
+
+    window.addEventListener('keydown', e=>{
+      if(e.key === 'Escape') closeGlossary();
+    });
+  })();
+</script>
+</body>
+</html>

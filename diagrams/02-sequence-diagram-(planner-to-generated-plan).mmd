@@ -1,0 +1,14 @@
+﻿sequenceDiagram
+  participant User
+  participant UI as Planner UI
+  participant Data as PLAN_DATA
+  participant Result as Plan Result View
+
+  User->>UI: Enter personal and immigration details
+  UI->>Data: Fetch visa types for destination
+  Data-->>UI: Visa options
+  User->>UI: Complete preferences and click Generate
+  UI->>Data: Fetch docs, timeline, rules, costs, culture, emergency, citySafety
+  Data-->>UI: Structured plan payload
+  UI->>Result: Render generated plan cards and heatmap
+  Result-->>User: Personalized plan output

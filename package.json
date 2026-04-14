@@ -1,0 +1,12 @@
+{
+  "name": "minor-project-2-workspace",
+  "private": true,
+  "scripts": {
+    "dev": "node scripts/dev.cjs",
+    "dev:react-frontend": "npm --prefix frontend run dev",
+    "install:all": "npm --prefix frontend install"
+  },
+  "devDependencies": {
+    "vite": "^8.0.3"
+  }
+}

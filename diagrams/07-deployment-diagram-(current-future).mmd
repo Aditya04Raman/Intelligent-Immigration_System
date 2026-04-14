@@ -1,0 +1,13 @@
+﻿flowchart LR
+  Dev[Developer Machine]
+  Browser[User Browser]
+  StaticHost[Static Hosting: Netlify or Vercel or GitHub Pages]
+  LocalData[Local Storage]
+  FutureAPI[Future Backend API]
+  FutureDB[Future Database]
+
+  Dev --> StaticHost
+  Browser --> StaticHost
+  Browser --> LocalData
+  Browser -. future integration .-> FutureAPI
+  FutureAPI --> FutureDB

@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Dashboard — ImmigrationIQ</title>
+<link rel="stylesheet" href="../css/global.css"/>
+<style>
+:root {
+  --gold:#26F2B8;
+  --gold-lt:#7CFFD8;
+  --gold-dk:#11946F;
+  --teal:#57C6FF;
+  --teal-lt:#9FE0FF;
+}
+.dash-layout { display:grid; grid-template-columns:260px 1fr; min-height:100vh; padding-top:72px; }
+
+.dash-sidebar {
+  background:var(--navy); border-right:1px solid var(--border2);
+  padding:28px 16px; position:sticky; top:72px;
+  height:calc(100vh - 72px); overflow-y:auto;
+}
+.sidebar-profile {
+  padding:18px 16px; border:1px solid var(--border2);
+  border-radius:14px; margin-bottom:22px; background:var(--card);
+}
+.profile-avatar {
+  width:46px; height:46px; border-radius:50%;
+  background:linear-gradient(135deg,var(--teal),var(--gold));
+  display:flex; align-items:center; justify-content:center;
+  font-family:var(--ff-display); font-weight:800; font-size:1rem;
+  color:var(--deep); margin-bottom:10px;
+}
+.profile-name { font-family:var(--ff-display); font-weight:700; font-size:.9rem; margin-bottom:3px; }
+.profile-route { font-size:.75rem; color:var(--muted); margin-bottom:8px; }
+.profile-status { font-size:.72rem; color:var(--teal); display:inline-block; padding:3px 10px; background:rgba(9,184,181,.1); border-radius:99px; border:1px solid rgba(9,184,181,.2); }
+
+.nav-section-label {
+  font-size:.62rem; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--muted); padding:0 10px; margin:14px 0 6px;
+  font-family:var(--ff-display); font-weight:600;
+}
+.dash-nav-item {
+  display:flex; align-items:center; gap:11px;
+  padding:10px 12px; border-radius:9px; font-size:.84rem;
+  cursor:pointer; transition:all .22s; margin-bottom:2px;
+  color:var(--muted); text-decoration:none;
+  border:none; background:none; width:100%; text-align:left;
+}
+.dash-nav-item:hover { background:rgba(212,168,67,.07); color:var(--white); }
+.dash-nav-item.active { background:rgba(212,168,67,.12); color:var(--gold); }
+.nav-icon {
+  width:30px; height:30px; border-radius:7px; display:flex;
+  align-items:center; justify-content:center; font-size:.95rem;
+  flex-shrink:0; background:rgba(255,255,255,.05);
+}
+.dash-nav-item.active .nav-icon { background:rgba(212,168,67,.15); }
+.nav-badge {
+  margin-left:auto; background:rgba(239,68,68,.2); color:#EF4444;
+  font-size:.62rem; padding:2px 7px; border-radius:99px;
+  font-family:var(--ff-display); font-weight:700;
+}
+
+.dash-main { padding:36px 44px; background:var(--deep); overflow-x:hidden; }
+
+.kpi-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:28px; }
+.kpi-card {
+  padding:22px 20px; border-radius:14px; border:1px solid var(--border2);
+  background:var(--card); position:relative; overflow:hidden;
+}
+.kpi-card.kpi-urgent { border-color:rgba(212,168,67,.4); background:rgba(212,168,67,.06); }
+.kpi-card.kpi-danger { border-color:rgba(239,68,68,.3); background:rgba(239,68,68,.04); }
+.kpi-num { font-family:var(--ff-display); font-size:2.2rem; font-weight:800; line-height:1; margin-bottom:5px; }
+.kpi-label { font-size:.82rem; color:var(--muted); font-weight:500; }
+.kpi-sub { font-size:.7rem; color:var(--muted); margin-top:4px; }
+.kpi-pulse {
+  position:absolute; top:14px; right:14px;
+  width:8px; height:8px; border-radius:50%; background:var(--gold);
+  animation:pulseDot 2s ease infinite;
+}
+@keyframes pulseDot { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(1.6);opacity:.4} }
+
+.content-panel { display:none; }
+.content-panel.active { display:block; animation:fadeIn .3s ease; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
+
+.panel-title { font-family:var(--ff-display); font-weight:800; font-size:1.1rem; margin-bottom:20px; }
+.panel-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
+.panel-header h3 { font-family:var(--ff-display); font-weight:700; font-size:1rem; }
+
+/* overview */
+.overview-grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+.dash-card { background:var(--card); border:1px solid var(--border2); border-radius:14px; padding:24px; }
+.dash-card-title {
+  font-family:var(--ff-display); font-weight:700; font-size:.88rem;
+  margin-bottom:16px; display:flex; justify-content:space-between; align-items:center;
+}
+.dash-card-title a { font-size:.75rem; color:var(--gold); font-weight:600; text-decoration:none; }
+
+.learn-row { display:flex; gap:10px; align-items:center; margin-bottom:14px; }
+.learn-row:last-child { margin-bottom:0; }
+.learn-icon { font-size:1.1rem; width:26px; text-align:center; flex-shrink:0; }
+.learn-info { flex:1; min-width:0; }
+.learn-name { font-size:.82rem; font-weight:500; margin-bottom:5px; display:flex; justify-content:space-between; gap:8px; }
+.learn-pct { font-size:.75rem; color:var(--muted); flex-shrink:0; }
+.progress-track { height:5px; background:rgba(255,255,255,.07); border-radius:99px; overflow:hidden; }
+.progress-fill { height:100%; border-radius:99px; transition:width 1.2s cubic-bezier(.16,1,.3,1); width:0; }
+.learn-check { font-size:.85rem; color:#10B981; flex-shrink:0; }
+
+.urgent-alert {
+  background:rgba(212,168,67,.06); border:1px solid rgba(212,168,67,.3);
+  border-radius:12px; padding:18px 20px; margin-bottom:12px;
+}
+.urgent-alert-title { font-family:var(--ff-display); font-weight:700; font-size:.88rem; color:var(--gold); margin-bottom:6px; }
+.urgent-alert p { font-size:.8rem; color:var(--muted); line-height:1.6; margin:0 0 12px; }
+
+.quick-action {
+  display:flex; align-items:center; gap:10px; padding:10px 12px;
+  border-radius:8px; border:1px solid var(--border2); margin-bottom:7px;
+  font-size:.82rem; color:var(--white); text-decoration:none;
+  transition:all .22s; background:transparent;
+}
+.quick-action:hover { background:rgba(255,255,255,.04); border-color:rgba(212,168,67,.3); color:var(--gold); }
+.qa-icon { font-size:1rem; width:22px; text-align:center; }
+
+/* first 72h simulator */
+.sim-wrap {
+  margin-top:18px;
+  grid-column:1 / -1;
+  background:linear-gradient(135deg,rgba(87,198,255,.1),rgba(38,242,184,.06));
+  border:1px solid rgba(87,198,255,.24);
+  border-radius:14px;
+  padding:22px;
+}
+.sim-head { display:flex; justify-content:space-between; align-items:flex-start; gap:14px; flex-wrap:wrap; margin-bottom:14px; }
+.sim-head h4 { font-family:var(--ff-display); font-size:.95rem; }
+.sim-head p { font-size:.78rem; color:var(--muted); margin-top:5px; }
+.sim-day { font-size:.7rem; letter-spacing:.1em; text-transform:uppercase; color:var(--teal); font-family:var(--ff-display); font-weight:700; }
+.sim-progress { margin-bottom:16px; }
+.sim-track { height:6px; border-radius:99px; background:rgba(255,255,255,.08); overflow:hidden; }
+.sim-fill { height:100%; width:0; transition:width .35s var(--ease-expo); background:linear-gradient(90deg,var(--teal),var(--gold)); }
+.sim-choices { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:12px; }
+.sim-choice {
+  text-align:left;
+  background:rgba(4,6,15,.6);
+  border:1px solid var(--border2);
+  border-radius:10px;
+  padding:12px 14px;
+  color:var(--white);
+  font-size:.8rem;
+  cursor:pointer;
+  transition:border-color .2s, transform .2s;
+}
+.sim-choice:hover { border-color:rgba(87,198,255,.45); transform:translateY(-1px); }
+.sim-outcome { margin-top:14px; border:1px solid var(--border2); border-radius:10px; padding:12px 14px; font-size:.79rem; color:var(--muted); line-height:1.6; }
+.sim-controls { display:flex; gap:10px; margin-top:14px; flex-wrap:wrap; }
+.sim-chip { font-size:.68rem; letter-spacing:.08em; text-transform:uppercase; border-radius:99px; padding:4px 9px; border:1px solid; }
+.sim-chip.good { color:#7be7c5; border-color:rgba(16,185,129,.4); background:rgba(16,185,129,.1); }
+.sim-chip.warn { color:#ffd694; border-color:rgba(245,158,11,.4); background:rgba(245,158,11,.1); }
+.sim-chip.risk { color:#ffa7a7; border-color:rgba(239,68,68,.4); background:rgba(239,68,68,.1); }
+
+/* alerts */
+.alert-item {
+  display:flex; gap:12px; align-items:flex-start;
+  padding:14px 16px; border-radius:11px; border:1px solid; margin-bottom:10px;
+}
+.alert-warn   { border-color:rgba(245,158,11,.3);  background:rgba(245,158,11,.05); }
+.alert-info   { border-color:rgba(59,130,246,.3);  background:rgba(59,130,246,.05); }
+.alert-ok     { border-color:rgba(16,185,129,.3);  background:rgba(16,185,129,.05); }
+.alert-danger { border-color:rgba(239,68,68,.3);   background:rgba(239,68,68,.05); }
+.alert-emoji { font-size:1.1rem; flex-shrink:0; margin-top:1px; }
+.alert-body { flex:1; }
+.alert-title { font-family:var(--ff-display); font-weight:700; font-size:.86rem; margin-bottom:3px; }
+.alert-desc  { font-size:.8rem; color:var(--muted); line-height:1.55; }
+.alert-time  { font-size:.7rem; color:var(--muted); flex-shrink:0; white-space:nowrap; }
+
+/* plan */
+.plan-hero {
+  display:flex; align-items:center; gap:18px; flex-wrap:wrap;
+  padding:22px 26px; border-radius:14px; margin-bottom:22px;
+  background:linear-gradient(135deg,rgba(212,168,67,.09),rgba(9,184,181,.05));
+  border:1px solid rgba(212,168,67,.25);
+}
+.plan-flags { display:flex; align-items:center; gap:10px; }
+.plan-flag { font-size:2.2rem; line-height:1; }
+.plan-arrow { font-size:1.4rem; color:var(--gold); }
+.plan-title-block h3 { font-size:1.1rem; margin-bottom:4px; }
+.plan-title-block p { font-size:.78rem; color:var(--muted); }
+.plan-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+.plan-block { background:var(--card); border:1px solid var(--border2); border-radius:12px; padding:20px 22px; }
+.plan-block-title {
+  font-size:.68rem; letter-spacing:.12em; text-transform:uppercase;
+  color:var(--teal); font-family:var(--ff-display); font-weight:600; margin-bottom:12px;
+}
+.plan-item {
+  display:flex; gap:10px; align-items:flex-start;
+  padding:8px 0; border-bottom:1px solid rgba(255,255,255,.04); font-size:.82rem;
+}
+.plan-item:last-child { border-bottom:none; padding-bottom:0; }
+.pi-dot {
+  width:18px; height:18px; border-radius:50%; display:flex;
+  align-items:center; justify-content:center; font-size:.6rem;
+  flex-shrink:0; margin-top:1px; font-weight:700;
+}
+.pi-warn  { background:rgba(212,168,67,.2);  color:var(--gold); }
+.pi-info  { background:rgba(9,184,181,.2);   color:var(--teal); }
+.pi-money { background:rgba(16,185,129,.15); color:#10B981; }
+.pi-rule  { background:rgba(139,92,246,.15); color:#8B5CF6; }
+.pi-text  { color:var(--muted); line-height:1.5; flex:1; }
+.pi-val   { margin-left:auto; font-family:var(--ff-display); font-weight:700; color:var(--gold); font-size:.78rem; flex-shrink:0; padding-left:8px; }
+
+/* learning panel */
+.learning-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+.mod-card { background:var(--card); border:1px solid var(--border2); border-radius:12px; padding:18px 20px; }
+.mod-head { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px; }
+.mod-left { display:flex; gap:10px; align-items:center; }
+.mod-ico  { font-size:1.3rem; }
+.mod-name { font-family:var(--ff-display); font-weight:700; font-size:.86rem; margin-bottom:2px; }
+.mod-meta { font-size:.7rem; color:var(--muted); }
+
+/* documents */
+.doc-row {
+  display:flex; align-items:center; gap:12px; padding:12px 16px;
+  border-radius:10px; border:1px solid var(--border2); background:var(--card); margin-bottom:8px;
+}
+.doc-ico  { font-size:1.2rem; flex-shrink:0; }
+.doc-info { flex:1; min-width:0; }
+.doc-name { font-size:.84rem; font-weight:500; margin-bottom:2px; }
+.doc-det  { font-size:.72rem; color:var(--muted); }
+.doc-btn  {
+  font-size:.72rem; color:var(--muted); padding:5px 10px;
+  border:1px solid var(--border2); border-radius:6px; cursor:pointer;
+  background:transparent; transition:all .2s; flex-shrink:0;
+}
+.doc-btn:hover { color:var(--white); border-color:rgba(255,255,255,.2); }
+
+/* checklist */
+.cl-section-label {
+  font-size:.68rem; letter-spacing:.13em; text-transform:uppercase;
+  color:var(--teal); font-family:var(--ff-display); font-weight:600;
+  margin:22px 0 10px;
+}
+.cl-section-label:first-child { margin-top:0; }
+.check-row {
+  display:flex; align-items:center; gap:12px;
+  padding:11px 14px; border:1px solid var(--border2);
+  border-radius:9px; margin-bottom:6px; cursor:pointer; transition:border-color .2s;
+}
+.check-row:hover { border-color:rgba(212,168,67,.3); }
+.check-row.done { background:rgba(16,185,129,.02); }
+.check-box {
+  width:18px; height:18px; border:1.5px solid var(--border2); border-radius:4px;
+  flex-shrink:0; display:flex; align-items:center; justify-content:center;
+  font-size:.62rem; transition:all .2s; color:transparent;
+}
+.check-box.done { background:rgba(16,185,129,.2); border-color:#10B981; color:#10B981; }
+.check-label { font-size:.84rem; transition:color .2s, text-decoration .2s; }
+.check-row.done .check-label { color:var(--muted); text-decoration:line-through; }
+
+/* badge */
+.badge { display:inline-block; font-size:.66rem; padding:3px 10px; border-radius:99px; letter-spacing:.05em; font-family:var(--ff-display); font-weight:600; border:1px solid; }
+.badge-green  { background:rgba(16,185,129,.1);  color:#10B981;     border-color:rgba(16,185,129,.3); }
+.badge-gold   { background:rgba(212,168,67,.1);  color:var(--gold); border-color:rgba(212,168,67,.3); }
+.badge-red    { background:rgba(239,68,68,.1);   color:#EF4444;     border-color:rgba(239,68,68,.3); }
+.badge-teal   { background:rgba(9,184,181,.1);   color:var(--teal); border-color:rgba(9,184,181,.3); }
+.badge-purple { background:rgba(139,92,246,.1);  color:#8B5CF6;     border-color:rgba(139,92,246,.3); }
+
+@media(max-width:1024px){
+  .dash-layout { grid-template-columns:1fr; }
+  .dash-sidebar { position:static; height:auto; }
+  .kpi-grid { grid-template-columns:1fr 1fr; }
+  .dash-main { padding:24px 20px; }
+  .overview-grid, .plan-grid, .learning-grid { grid-template-columns:1fr; }
+  .sim-choices { grid-template-columns:1fr; }
+}
+@media(max-width:600px){ .kpi-grid { grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursor-ring"></div>
+
+<nav class="navbar">
+  <a href="../index.html" class="navbar-logo">Immigration<span>IQ</span></a>
+  <div class="navbar-links">
+    <a href="../index.html">Home</a>
+    <a href="planner.html">Planner</a>
+    <a href="countries.html">Countries</a>
+    <a href="learn.html">Learn</a>
+    <a href="safety.html">Safety</a>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="login.html" class="navbar-auth-link" data-auth="guest">Log In</a>
+    <a href="signup.html" class="navbar-auth-link navbar-auth-signup" data-auth="guest">Sign Up</a>
+    <a href="dashboard.html" class="navbar-auth-user" data-auth="user" hidden><span class="navbar-user-avatar" data-auth-avatar>IQ</span><span class="navbar-user-name" data-auth-name>Account</span></a>
+    <button type="button" class="navbar-auth-logout" data-auth="user" data-auth-logout data-auth-redirect="../index.html" hidden>Log Out</button>
+    <a href="planner.html" class="navbar-cta">Get Started →</a>
+  </div>
+  <button class="hamburger"><span></span><span></span><span></span></button>
+</nav>
+
+<div class="dash-layout">
+
+  <!-- ════ SIDEBAR ════ -->
+  <div class="dash-sidebar">
+    <div class="sidebar-profile">
+      <div class="profile-avatar">AR</div>
+      <div class="profile-name">Aditya Raman</div>
+      <div class="profile-route">🇮🇳 India → 🇺🇸 United States</div>
+      <span class="profile-status">H-1B · Active</span>
+    </div>
+
+    <div class="nav-section-label">Navigation</div>
+    <button class="dash-nav-item active" onclick="switchPanel('overview',this)">
+      <div class="nav-icon">📊</div>Overview
+    </button>
+    <button class="dash-nav-item" onclick="switchPanel('alerts',this)">
+      <div class="nav-icon">🔔</div>Alerts<span class="nav-badge">3</span>
+    </button>
+    <button class="dash-nav-item" onclick="switchPanel('plan',this)">
+      <div class="nav-icon">🗂️</div>My Plan
+    </button>
+    <button class="dash-nav-item" onclick="switchPanel('progress',this)">
+      <div class="nav-icon">📚</div>Learning
+    </button>
+    <button class="dash-nav-item" onclick="switchPanel('documents',this)">
+      <div class="nav-icon">📄</div>Documents
+    </button>
+    <button class="dash-nav-item" onclick="switchPanel('checklist',this)">
+      <div class="nav-icon">✅</div>Checklist
+    </button>
+
+    <div class="nav-section-label" style="margin-top:18px;">Quick Links</div>
+    <a href="planner.html" class="dash-nav-item"><div class="nav-icon">✏️</div>Edit My Plan</a>
+    <a href="countries.html" class="dash-nav-item"><div class="nav-icon">🌍</div>Country Guide</a>
+    <a href="safety.html" class="dash-nav-item"><div class="nav-icon">🛡️</div>Safety Training</a>
+    <a href="learn.html" class="dash-nav-item"><div class="nav-icon">🎓</div>Learning Hub</a>
+  </div>
+
+  <!-- ════ MAIN ════ -->
+  <div class="dash-main">
+
+    <!-- KPI Cards -->
+    <div class="kpi-grid">
+      <div class="kpi-card kpi-urgent">
+        <div class="kpi-pulse"></div>
+        <div class="kpi-num" style="color:var(--gold);">45</div>
+        <div class="kpi-label">Days to Visa Expiry</div>
+        <div class="kpi-sub">H-1B · Renew immediately</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-num" style="color:var(--teal);">2 / 6</div>
+        <div class="kpi-label">Modules Completed</div>
+        <div class="kpi-sub">33% of Learning Hub done</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-num" style="color:#10B981;">87%</div>
+        <div class="kpi-label">Compliance Score</div>
+        <div class="kpi-sub">Good standing</div>
+      </div>
+      <div class="kpi-card kpi-danger">
+        <div class="kpi-num" style="color:#EF4444;">3</div>
+        <div class="kpi-label">Active Alerts</div>
+        <div class="kpi-sub">1 requires immediate action</div>
+      </div>
+    </div>
+
+    <!-- ══ OVERVIEW ══ -->
+    <div class="content-panel active" id="panel-overview">
+      <div class="panel-title">Overview</div>
+      <div class="overview-grid">
+
+        <!-- Learning Progress -->
+        <div class="dash-card">
+          <div class="dash-card-title">
+            Learning Progress
+            <a href="learn.html">View All →</a>
+          </div>
+          <div class="learn-row">
+            <div class="learn-icon">⚖️</div>
+            <div class="learn-info">
+              <div class="learn-name"><span>Visa Compliance Basics</span><span class="learn-pct">100%</span></div>
+              <div class="progress-track"><div class="progress-fill" data-value="100" style="background:#10B981;"></div></div>
+            </div>
+            <div class="learn-check">✓</div>
+          </div>
+          <div class="learn-row">
+            <div class="learn-icon">🆘</div>
+            <div class="learn-info">
+              <div class="learn-name"><span>Emergency Preparedness</span><span class="learn-pct">72%</span></div>
+              <div class="progress-track"><div class="progress-fill" data-value="72" style="background:var(--gold);"></div></div>
+            </div>
+          </div>
+          <div class="learn-row">
+            <div class="learn-icon">🌍</div>
+            <div class="learn-info">
+              <div class="learn-name"><span>Cultural Adaptation</span><span class="learn-pct">40%</span></div>
+              <div class="progress-track"><div class="progress-fill" data-value="40" style="background:var(--gold);"></div></div>
+            </div>
+          </div>
+          <div class="learn-row">
+            <div class="learn-icon">💼</div>
+            <div class="learn-info">
+              <div class="learn-name"><span>Workplace Rights</span><span class="learn-pct">0%</span></div>
+              <div class="progress-track"><div class="progress-fill" data-value="0" style="background:var(--teal);"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right column -->
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          <div class="urgent-alert">
+            <div class="urgent-alert-title">⚠️ Action Required — Visa Expiry in 45 Days</div>
+            <p>Your H-1B visa expires on May 15, 2025. Begin the renewal or extension process immediately to avoid any gap in your legal status.</p>
+            <a href="planner.html" class="btn btn-gold btn-sm">Start Renewal Process →</a>
+          </div>
+          <div class="dash-card" style="padding:18px 20px;">
+            <div class="dash-card-title" style="margin-bottom:12px;">Quick Actions</div>
+            <a href="planner.html" class="quick-action"><span class="qa-icon">📅</span>Schedule Visa Renewal</a>
+            <a href="countries.html" class="quick-action"><span class="qa-icon">🌍</span>View US Country Guide</a>
+            <a href="learn.html" class="quick-action"><span class="qa-icon">📚</span>Resume Learning Modules</a>
+            <a href="safety.html" class="quick-action"><span class="qa-icon">🛡️</span>Safety Awareness Training</a>
+          </div>
+        </div>
+
+        <div class="sim-wrap">
+          <div class="sim-head">
+            <div>
+              <div class="sim-day" id="sim-day-label">Day 1</div>
+              <h4>First 72 Hours Simulator</h4>
+              <p>Practice what to do right after landing. Your choices affect legal, safety, and readiness outcomes.</p>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <span class="sim-chip good" id="sim-legal-chip">Legal +0</span>
+              <span class="sim-chip warn" id="sim-safety-chip">Safety +0</span>
+              <span class="sim-chip risk" id="sim-risk-chip">Risk 0</span>
+            </div>
+          </div>
+          <div class="sim-progress">
+            <div class="sim-track"><div class="sim-fill" id="sim-fill"></div></div>
+          </div>
+          <div id="sim-question" style="font-family:var(--ff-display);font-size:.9rem;margin-bottom:4px;">Question text</div>
+          <div id="sim-context" style="font-size:.79rem;color:var(--muted);line-height:1.6;">Scenario context</div>
+          <div class="sim-choices" id="sim-choices"></div>
+          <div class="sim-outcome" id="sim-outcome">Pick an action to see the likely outcome.</div>
+          <div class="sim-controls">
+            <button class="btn btn-ghost btn-sm" id="sim-next-btn" style="display:none;" onclick="nextSimStep()">Next Situation →</button>
+            <button class="btn btn-outline btn-sm" onclick="resetSimulator()">Reset Simulation</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ ALERTS ══ -->
+    <div class="content-panel" id="panel-alerts">
+      <div class="panel-header">
+        <h3>Alerts &amp; Notifications</h3>
+        <button onclick="dismissAll()" style="font-size:.78rem;color:var(--muted);cursor:pointer;background:none;border:none;">Mark all read</button>
+      </div>
+      <div class="alert-item alert-warn">
+        <div class="alert-emoji">⚠️</div>
+        <div class="alert-body">
+          <div class="alert-title">Visa Expiry in 45 Days</div>
+          <div class="alert-desc">Your H-1B visa expires on May 15, 2025. Begin the H-1B extension petition with your employer immediately. Standard processing takes 4–6 months.</div>
+        </div>
+        <div class="alert-time">2 hrs ago</div>
+      </div>
+      <div class="alert-item alert-danger">
+        <div class="alert-emoji">🚨</div>
+        <div class="alert-body">
+          <div class="alert-title">Passport Expiry Warning</div>
+          <div class="alert-desc">Your passport expires in 6 months. Most countries and the US consulate require 6+ months of passport validity. Renew before submitting the H-1B extension.</div>
+        </div>
+        <div class="alert-time">1 day ago</div>
+      </div>
+      <div class="alert-item alert-info">
+        <div class="alert-emoji">ℹ️</div>
+        <div class="alert-body">
+          <div class="alert-title">USCIS Processing Time Update</div>
+          <div class="alert-desc">USCIS updated H-1B extension processing times. Standard: 4–6 months. Premium processing: 15 business days for an additional fee of $2,805.</div>
+        </div>
+        <div class="alert-time">1 day ago</div>
+      </div>
+      <div class="alert-item alert-ok">
+        <div class="alert-emoji">✅</div>
+        <div class="alert-body">
+          <div class="alert-title">Module Completed — Visa Compliance Basics</div>
+          <div class="alert-desc">You scored 100% on the Visa Compliance Basics module. A certificate is available in the Documents section.</div>
+        </div>
+        <div class="alert-time">3 days ago</div>
+      </div>
+    </div>
+
+    <!-- ══ MY PLAN ══ -->
+    <div class="content-panel" id="panel-plan">
+      <div class="panel-header">
+        <h3>My Immigration Plan</h3>
+        <div style="display:flex;gap:10px;">
+          <button onclick="window.print()" class="btn btn-ghost btn-sm">🖨️ Print</button>
+          <a href="planner.html" class="btn btn-gold btn-sm">✏️ Edit Plan</a>
+        </div>
+      </div>
+      <div class="plan-hero">
+        <div class="plan-flags">
+          <div class="plan-flag">🇮🇳</div>
+          <div class="plan-arrow">→</div>
+          <div class="plan-flag">🇺🇸</div>
+        </div>
+        <div class="plan-title-block">
+          <h3>India → United States · H-1B Work Visa</h3>
+          <p>Generated Jan 15, 2025 · Last updated Jan 28, 2025</p>
+          <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
+            <span class="badge badge-gold">H-1B</span>
+            <span class="badge badge-teal">Work / Employment</span>
+            <span class="badge badge-green">Active Status</span>
+          </div>
+        </div>
+      </div>
+      <div class="plan-grid">
+        <!-- Documents -->
+        <div class="plan-block">
+          <div class="plan-block-title">📋 Required Documents</div>
+          <div class="plan-item"><div class="pi-dot pi-warn">!</div><span class="pi-text">Valid Passport (6+ months beyond visa expiry date)</span></div>
+          <div class="plan-item"><div class="pi-dot pi-warn">!</div><span class="pi-text">I-129 Petition — filed by your sponsoring employer</span></div>
+          <div class="plan-item"><div class="pi-dot pi-warn">!</div><span class="pi-text">Labor Condition Application (LCA) from DOL</span></div>
+          <div class="plan-item"><div class="pi-dot pi-warn">!</div><span class="pi-text">Employment Offer Letter on company letterhead</span></div>
+          <div class="plan-item"><div class="pi-dot pi-warn">!</div><span class="pi-text">Educational Credentials — degree certificates + transcripts</span></div>
+          <div class="plan-item"><div class="pi-dot pi-warn">!</div><span class="pi-text">Specialty Occupation Evidence (job description, qualifications)</span></div>
+        </div>
+        <!-- Next Steps -->
+        <div class="plan-block">
+          <div class="plan-block-title">📅 Next Steps</div>
+          <div class="plan-item"><div class="pi-dot pi-info">1</div><span class="pi-text">Notify your employer of the 45-day visa expiry timeline immediately</span></div>
+          <div class="plan-item"><div class="pi-dot pi-info">2</div><span class="pi-text">Employer files H-1B extension petition (Form I-129) with USCIS</span></div>
+          <div class="plan-item"><div class="pi-dot pi-info">3</div><span class="pi-text">Pay USCIS filing fees — $730 base + $500 fraud prevention fee</span></div>
+          <div class="plan-item"><div class="pi-dot pi-info">4</div><span class="pi-text">Consider premium processing ($2,805 extra) for 15-day decision</span></div>
+          <div class="plan-item"><div class="pi-dot pi-info">5</div><span class="pi-text">Track your case status on the USCIS online portal with your receipt number</span></div>
+        </div>
+        <!-- Cost -->
+        <div class="plan-block">
+          <div class="plan-block-title">💰 Cost Overview</div>
+          <div class="plan-item"><div class="pi-dot pi-money">$</div><span class="pi-text">I-129 USCIS Filing Fee</span><span class="pi-val">$730</span></div>
+          <div class="plan-item"><div class="pi-dot pi-money">$</div><span class="pi-text">Fraud Prevention and Detection Fee</span><span class="pi-val">$500</span></div>
+          <div class="plan-item"><div class="pi-dot pi-money">$</div><span class="pi-text">Premium Processing (optional)</span><span class="pi-val">$2,805</span></div>
+          <div class="plan-item"><div class="pi-dot pi-money">$</div><span class="pi-text">Immigration Attorney Fees (recommended)</span><span class="pi-val">$1,500–$3,000</span></div>
+          <div class="plan-item" style="border-top:2px solid rgba(212,168,67,.3);margin-top:4px;padding-top:10px;border-bottom:none;">
+            <div class="pi-dot pi-money" style="font-size:.65rem;">Σ</div>
+            <span class="pi-text" style="color:var(--white);font-weight:600;">Total (without premium processing)</span>
+            <span class="pi-val">~$2,730+</span>
+          </div>
+        </div>
+        <!-- Compliance -->
+        <div class="plan-block">
+          <div class="plan-block-title">⚖️ Compliance Rules</div>
+          <div class="plan-item"><div class="pi-dot pi-rule">✓</div><span class="pi-text">Work only for your H-1B sponsoring employer at the listed work location</span></div>
+          <div class="plan-item"><div class="pi-dot pi-rule">✓</div><span class="pi-text">No unauthorized secondary or freelance employment permitted</span></div>
+          <div class="plan-item"><div class="pi-dot pi-rule">✓</div><span class="pi-text">Report any address change to USCIS within 10 days using AR-11 form</span></div>
+          <div class="plan-item"><div class="pi-dot pi-rule">✓</div><span class="pi-text">Keep your I-94 Arrival/Departure record accurate and up to date</span></div>
+          <div class="plan-item"><div class="pi-dot pi-rule">✓</div><span class="pi-text">Do not travel internationally while extension petition is pending without an advance parole document</span></div>
+        </div>
+      </div>
+      <div style="margin-top:18px;padding:14px 18px;background:rgba(9,184,181,.05);border:1px solid rgba(9,184,181,.2);border-radius:10px;">
+        <p style="font-size:.78rem;color:var(--muted);margin:0;">⚠️ This plan is for educational and preparation purposes only. Always consult a licensed immigration attorney (AILA member) for legal decisions about your visa status.</p>
+      </div>
+    </div>
+
+    <!-- ══ LEARNING ══ -->
+    <div class="content-panel" id="panel-progress">
+      <div class="panel-header">
+        <h3>Learning Progress</h3>
+        <a href="learn.html" class="btn btn-gold btn-sm">Open Learning Hub →</a>
+      </div>
+      <div class="learning-grid">
+        <div class="mod-card">
+          <div class="mod-head">
+            <div class="mod-left"><div class="mod-ico">⚖️</div><div><div class="mod-name">Visa Compliance Basics</div><div class="mod-meta">Legal · Beginner · 25 min</div></div></div>
+            <span class="badge badge-green">Done</span>
+          </div>
+          <div class="progress-track"><div class="progress-fill" data-value="100" style="background:#10B981;"></div></div>
+        </div>
+        <div class="mod-card">
+          <div class="mod-head">
+            <div class="mod-left"><div class="mod-ico">🆘</div><div><div class="mod-name">Emergency Preparedness</div><div class="mod-meta">Safety · Intermediate · 20 min</div></div></div>
+            <span class="badge badge-gold">72%</span>
+          </div>
+          <div class="progress-track"><div class="progress-fill" data-value="72" style="background:var(--gold);"></div></div>
+        </div>
+        <div class="mod-card">
+          <div class="mod-head">
+            <div class="mod-left"><div class="mod-ico">🌍</div><div><div class="mod-name">Cultural Adaptation Guide</div><div class="mod-meta">Culture · Beginner · 35 min</div></div></div>
+            <span class="badge badge-gold">40%</span>
+          </div>
+          <div class="progress-track"><div class="progress-fill" data-value="40" style="background:var(--gold);"></div></div>
+        </div>
+        <div class="mod-card">
+          <div class="mod-head">
+            <div class="mod-left"><div class="mod-ico">💼</div><div><div class="mod-name">Workplace Rights Abroad</div><div class="mod-meta">Legal · Intermediate · 30 min</div></div></div>
+            <span class="badge badge-teal">New</span>
+          </div>
+          <div class="progress-track"><div class="progress-fill" data-value="0" style="background:var(--teal);"></div></div>
+        </div>
+        <div class="mod-card">
+          <div class="mod-head">
+            <div class="mod-left"><div class="mod-ico">🏦</div><div><div class="mod-name">Banking &amp; Finance Abroad</div><div class="mod-meta">Daily Life · Beginner · 15 min</div></div></div>
+            <span class="badge badge-teal">New</span>
+          </div>
+          <div class="progress-track"><div class="progress-fill" data-value="0" style="background:var(--teal);"></div></div>
+        </div>
+        <div class="mod-card">
+          <div class="mod-head">
+            <div class="mod-left"><div class="mod-ico">🏥</div><div><div class="mod-name">Healthcare Navigation</div><div class="mod-meta">Daily Life · Advanced · 20 min</div></div></div>
+            <span class="badge badge-teal">New</span>
+          </div>
+          <div class="progress-track"><div class="progress-fill" data-value="0" style="background:var(--teal);"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ DOCUMENTS ══ -->
+    <div class="content-panel" id="panel-documents">
+      <div class="panel-header">
+        <h3>Document Vault</h3>
+        <button class="btn btn-outline btn-sm" onclick="alert('Upload feature coming soon!')">+ Upload Document</button>
+      </div>
+      <div class="doc-row">
+        <div class="doc-ico">🛂</div>
+        <div class="doc-info"><div class="doc-name">Passport</div><div class="doc-det">Expires November 2028 · Indian Passport</div></div>
+        <span class="badge badge-green">Valid</span>
+        <button class="doc-btn" onclick="alert('Download coming soon!')">↓ View</button>
+      </div>
+      <div class="doc-row">
+        <div class="doc-ico">📋</div>
+        <div class="doc-info"><div class="doc-name">H-1B Visa Stamp</div><div class="doc-det">Expires May 15, 2025 · Renewal in progress</div></div>
+        <span class="badge badge-red">Expiring Soon</span>
+        <button class="doc-btn" onclick="alert('Download coming soon!')">↓ View</button>
+      </div>
+      <div class="doc-row">
+        <div class="doc-ico">📄</div>
+        <div class="doc-info"><div class="doc-name">I-94 Arrival / Departure Record</div><div class="doc-det">Last entry: January 2025 · Status D/S</div></div>
+        <span class="badge badge-green">Valid</span>
+        <button class="doc-btn" onclick="alert('Download coming soon!')">↓ View</button>
+      </div>
+      <div class="doc-row">
+        <div class="doc-ico">💼</div>
+        <div class="doc-info"><div class="doc-name">Employment Authorization (I-129)</div><div class="doc-det">Expires May 15, 2025 · Tied to current employer</div></div>
+        <span class="badge badge-gold">Renewing</span>
+        <button class="doc-btn" onclick="alert('Download coming soon!')">↓ View</button>
+      </div>
+      <div class="doc-row">
+        <div class="doc-ico">🪪</div>
+        <div class="doc-info"><div class="doc-name">Social Security Card</div><div class="doc-det">Permanent · Valid for work authorized by DHS</div></div>
+        <span class="badge badge-teal">Uploaded</span>
+        <button class="doc-btn" onclick="alert('Download coming soon!')">↓ View</button>
+      </div>
+      <div class="doc-row">
+        <div class="doc-ico">🏥</div>
+        <div class="doc-info"><div class="doc-name">Health Insurance Card</div><div class="doc-det">Renews December 2025 · Employer-sponsored plan</div></div>
+        <span class="badge badge-green">Valid</span>
+        <button class="doc-btn" onclick="alert('Download coming soon!')">↓ View</button>
+      </div>
+      <div class="doc-row">
+        <div class="doc-ico">🎓</div>
+        <div class="doc-info"><div class="doc-name">University Degree Transcripts</div><div class="doc-det">SRM Institute of Science &amp; Technology · 2022</div></div>
+        <span class="badge badge-teal">Uploaded</span>
+        <button class="doc-btn" onclick="alert('Download coming soon!')">↓ View</button>
+      </div>
+      <div class="doc-row">
+        <div class="doc-ico">📜</div>
+        <div class="doc-info"><div class="doc-name">Police Clearance Certificate</div><div class="doc-det">Issued 2024 · Valid for 2 years from issue date</div></div>
+        <span class="badge badge-green">Valid</span>
+        <button class="doc-btn" onclick="alert('Download coming soon!')">↓ View</button>
+      </div>
+    </div>
+
+    <!-- ══ CHECKLIST ══ -->
+    <div class="content-panel" id="panel-checklist">
+      <div class="panel-header">
+        <h3>Preparation Checklist</h3>
+        <div style="font-size:.8rem;color:var(--muted);" id="check-count">3 / 21 completed</div>
+      </div>
+
+      <div class="cl-section-label">Before Departure</div>
+      <div class="check-row done" onclick="toggleCheck(this)"><div class="check-box done">✓</div><span class="check-label">Passport valid for 6+ months beyond visa expiry</span></div>
+      <div class="check-row done" onclick="toggleCheck(this)"><div class="check-box done">✓</div><span class="check-label">All original documents gathered and stored securely</span></div>
+      <div class="check-row done" onclick="toggleCheck(this)"><div class="check-box done">✓</div><span class="check-label">Certified copies made of all important documents</span></div>
+      <div class="check-row" onclick="toggleCheck(this)"><div class="check-box"></div><span class="check-label">Travel and health insurance purchased before departure</span></div>
+      <div class="check-row" onclick="toggleCheck(this)"><div class="check-box"></div><span class="check-label">Embassy emergency contact number saved to phone</span></div>
+      <div class="check-row" onclick="toggleCheck(this)"><div class="check-box"></div><span class="check-label">Accommodation confirmed for first 2 weeks in the US</span></div>
+      <div class="check-row" onclick="toggleCheck(this)"><div class="check-box"></div><span class="check-label">Bank account notified of international travel dates</span></div>
+
+      <div class="cl-section-label">On Arrival</div>
+      <div class="check-row" onclick="toggleCheck(this)"><div class="check-box"></div><span class="check-label">Complete customs and immigration declaration form (CBP Form 6059B)</span></div>
+      <div class="check-row" onclick="toggleCheck(this)"><div class="check-box"></div><span class="check-label">Verify I-94 arrival record is correct on the CBP website</span></div>
+      <div class="check-row" onclick="toggleCheck(this)"><div class="check-box"></div><span class="check-label">Get a local SIM card or US eSIM at the airport</span></div>
+      <div class="check-row" onclick="toggleCheck(this)"><div class="check-box"></div><span class="check-label">Download offline maps of your city area</span></div>
+      <div class="check-row" onclick="toggleCheck(this)"><div class="check-box"></div><span class="check-label">Notify embassy of your arrival address in the US</span></div>
+      <div class="check-row" onclick="toggleCheck(this)"><div class="check-box"></div><span class="check-label">Submit AR-11 form to report your US address to USCIS within 10 days</span></div>
+
+      <div class="cl-section-label">First Month</div>
+      <div class="check-row" onclick="toggleCheck(this)"><div class="check-box"></div><span class="check-label">Open a local US bank account (Chase, Bank of America, or credit union)</span></div>
+      <div class="check-row" onclick="toggleCheck(this)"><div class="check-box"></div><span class="check-label">Register with a local primary care physician or doctor</span></div>
+      <div class="check-row" onclick="toggleCheck(this)"><div class="check-box"></div><span class="check-label">Enroll in employer-sponsored health insurance plan</span></div>
+      <div class="check-row" onclick="toggleCheck(this)"><div class="check-box"></div><span class="check-label">Obtain Social Security Number if not already issued</span></div>
+      <div class="check-row" onclick="toggleCheck(this)"><div class="check-box"></div><span class="check-label">Apply for a state driver's license or state photo ID</span></div>
+      <div class="check-row" onclick="toggleCheck(this)"><div class="check-box"></div><span class="check-label">Locate nearest hospital, pharmacy, and urgent care center</span></div>
+      <div class="check-row" onclick="toggleCheck(this)"><div class="check-box"></div><span class="check-label">Join a local Indian community or immigrant support group</span></div>
+      <div class="check-row" onclick="toggleCheck(this)"><div class="check-box"></div><span class="check-label">Complete remaining ImmigrationIQ learning modules</span></div>
+    </div>
+
+  </div><!-- end dash-main -->
+</div><!-- end dash-layout -->
+
+<script src="../js/shared.js"></script>
+<script>
+function switchPanel(id, el) {
+  document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.dash-nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  if (el) el.classList.add('active');
+  setTimeout(() => {
+    document.querySelectorAll('#panel-' + id + ' .progress-fill').forEach(f => {
+      f.style.width = (f.dataset.value || 0) + '%';
+    });
+  }, 80);
+}
+
+function toggleCheck(row) {
+  const box = row.querySelector('.check-box');
+  const isDone = box.classList.toggle('done');
+  box.textContent = isDone ? '✓' : '';
+  row.classList.toggle('done', isDone);
+  updateCheckCount();
+}
+
+function updateCheckCount() {
+  const total = document.querySelectorAll('#panel-checklist .check-box').length;
+  const done  = document.querySelectorAll('#panel-checklist .check-box.done').length;
+  const el = document.getElementById('check-count');
+  if (el) el.textContent = done + ' / ' + total + ' completed';
+}
+
+function dismissAll() {
+  document.querySelectorAll('.alert-item').forEach(a => a.style.opacity = '0.3');
+}
+
+const SIM_STEPS = [
+  {
+    day: 'Day 1',
+    question: 'Airport Exit: what do you do first?',
+    context: 'You just landed in the US and cleared immigration. You are tired and carrying documents.',
+    choices: [
+      { text: 'Use official airport taxi desk and keep receipt', legal: 1, safety: 2, risk: 0, outcome: 'Good move. Verified transport with receipt reduces scam and lost-item risk.' },
+      { text: 'Take random private ride from arrivals offer', legal: 0, safety: -1, risk: 2, outcome: 'Risky. Informal pickups are common scam points for overcharging and unsafe routing.' }
+    ]
+  },
+  {
+    day: 'Day 2',
+    question: 'Address update and records',
+    context: 'You settled temporary housing. Your immigration profile still has your old travel address.',
+    choices: [
+      { text: 'Submit AR-11 update within timeline', legal: 2, safety: 0, risk: 0, outcome: 'Correct. Timely address reporting prevents future compliance issues.' },
+      { text: 'Wait until visa renewal month', legal: -2, safety: 0, risk: 2, outcome: 'Compliance gap. Late updates can create avoidable legal complications.' }
+    ]
+  },
+  {
+    day: 'Day 3',
+    question: 'Housing and payments',
+    context: 'A landlord offers immediate move-in with cash only and no written contract.',
+    choices: [
+      { text: 'Ask for written lease + payment record', legal: 1, safety: 1, risk: 0, outcome: 'Strong decision. Documentation protects tenancy rights and identity proof needs.' },
+      { text: 'Pay deposit in cash to secure quickly', legal: -1, safety: -1, risk: 2, outcome: 'High risk. No contract leaves you exposed to eviction and deposit fraud.' }
+    ]
+  }
+];
+
+const simState = { index: 0, legal: 0, safety: 0, risk: 0, answered: false };
+
+function renderSimulator() {
+  const step = SIM_STEPS[simState.index];
+  if (!step) return;
+  const progress = ((simState.index) / SIM_STEPS.length) * 100;
+  const questionEl = document.getElementById('sim-question');
+  const contextEl = document.getElementById('sim-context');
+  const dayEl = document.getElementById('sim-day-label');
+  const choicesEl = document.getElementById('sim-choices');
+  const fillEl = document.getElementById('sim-fill');
+  const nextBtn = document.getElementById('sim-next-btn');
+  if (!questionEl || !contextEl || !dayEl || !choicesEl || !fillEl || !nextBtn) return;
+
+  dayEl.textContent = step.day;
+  questionEl.textContent = step.question;
+  contextEl.textContent = step.context;
+  fillEl.style.width = progress + '%';
+  nextBtn.style.display = 'none';
+  simState.answered = false;
+
+  choicesEl.innerHTML = step.choices.map((choice, idx) =>
+    `<button class="sim-choice" onclick="pickSimChoice(${idx})">${choice.text}</button>`
+  ).join('');
+
+  updateSimChips();
+}
+
+function updateSimChips() {
+  const legalEl = document.getElementById('sim-legal-chip');
+  const safetyEl = document.getElementById('sim-safety-chip');
+  const riskEl = document.getElementById('sim-risk-chip');
+  if (!legalEl || !safetyEl || !riskEl) return;
+  legalEl.textContent = `Legal ${simState.legal >= 0 ? '+' : ''}${simState.legal}`;
+  safetyEl.textContent = `Safety ${simState.safety >= 0 ? '+' : ''}${simState.safety}`;
+  riskEl.textContent = `Risk ${simState.risk}`;
+}
+
+function pickSimChoice(choiceIndex) {
+  if (simState.answered) return;
+  const step = SIM_STEPS[simState.index];
+  const choice = step && step.choices[choiceIndex];
+  if (!choice) return;
+  simState.answered = true;
+  simState.legal += choice.legal;
+  simState.safety += choice.safety;
+  simState.risk += choice.risk;
+  updateSimChips();
+
+  const outcomeEl = document.getElementById('sim-outcome');
+  const nextBtn = document.getElementById('sim-next-btn');
+  const choicesEl = document.getElementById('sim-choices');
+  if (outcomeEl) outcomeEl.textContent = choice.outcome;
+  if (nextBtn) nextBtn.style.display = 'inline-flex';
+  if (choicesEl) {
+    choicesEl.querySelectorAll('.sim-choice').forEach((btn, i) => {
+      btn.disabled = true;
+      btn.style.opacity = i === choiceIndex ? '1' : '.45';
+    });
+  }
+}
+
+function nextSimStep() {
+  if (simState.index < SIM_STEPS.length - 1) {
+    simState.index += 1;
+    renderSimulator();
+    return;
+  }
+  const outcomeEl = document.getElementById('sim-outcome');
+  const fillEl = document.getElementById('sim-fill');
+  const questionEl = document.getElementById('sim-question');
+  const contextEl = document.getElementById('sim-context');
+  const choicesEl = document.getElementById('sim-choices');
+  const nextBtn = document.getElementById('sim-next-btn');
+  if (fillEl) fillEl.style.width = '100%';
+  if (questionEl) questionEl.textContent = 'Simulation Complete';
+  if (contextEl) contextEl.textContent = 'You finished the first 72 hours readiness run. Repeat to explore different choices.';
+  if (choicesEl) choicesEl.innerHTML = '';
+  if (nextBtn) nextBtn.style.display = 'none';
+  if (outcomeEl) {
+    outcomeEl.textContent = `Final score: Legal ${simState.legal >= 0 ? '+' : ''}${simState.legal}, Safety ${simState.safety >= 0 ? '+' : ''}${simState.safety}, Risk ${simState.risk}.`;
+  }
+}
+
+function resetSimulator() {
+  simState.index = 0;
+  simState.legal = 0;
+  simState.safety = 0;
+  simState.risk = 0;
+  simState.answered = false;
+  const outcomeEl = document.getElementById('sim-outcome');
+  if (outcomeEl) outcomeEl.textContent = 'Pick an action to see the likely outcome.';
+  renderSimulator();
+}
+
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    document.querySelectorAll('#panel-overview .progress-fill').forEach(f => {
+      f.style.width = (f.dataset.value || 0) + '%';
+    });
+    updateCheckCount();
+    renderSimulator();
+  }, 300);
+});
+</script>
+</body>
+</html>

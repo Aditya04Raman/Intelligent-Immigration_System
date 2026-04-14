@@ -1,0 +1,73 @@
+﻿classDiagram
+  class UserProfile {
+    +name
+    +passportCountry
+    +email
+    +destination
+    +purpose
+    +visaType
+    +moveDate
+    +duration
+    +language
+  }
+
+  class PlannerEngine {
+    +populateVisaOptions(destination)
+    +generatePlan(profile)
+    +renderCityHeatmap(destination)
+  }
+
+  class PlanDataStore {
+    +visaTypes
+    +docs
+    +timeline
+    +rules
+    +costs
+    +culture
+    +emergency
+    +citySafety
+    +flags
+  }
+
+  class LearningModule {
+    +id
+    +title
+    +category
+    +difficulty
+    +duration
+    +progress
+    +lessons
+    +quiz
+  }
+
+  class LegalSnapshot {
+    +country
+    +riskLevel
+    +title
+    +description
+  }
+
+  class Simulator72h {
+    +steps
+    +stateIndex
+    +legalScore
+    +safetyScore
+    +riskScore
+    +pickChoice()
+    +nextStep()
+    +reset()
+  }
+
+  class ScamAlert {
+    +title
+    +region
+    +channel
+    +risk
+    +time
+  }
+
+  UserProfile --> PlannerEngine : input
+  PlannerEngine --> PlanDataStore : reads
+  LearningModule --> LegalSnapshot : contextual legal rules
+  Dashboard --> Simulator72h : contains
+  Safety --> ScamAlert : lists

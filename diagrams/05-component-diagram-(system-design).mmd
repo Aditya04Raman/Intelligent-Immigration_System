@@ -1,0 +1,20 @@
+﻿flowchart TB
+  subgraph Client Browser
+    Home[Home Page]
+    Planner[Planner Page]
+    Learn[Learn Page]
+    Safety[Safety Page]
+    Dashboard[Dashboard Page]
+    SharedUI[Shared CSS and Shared JS]
+    LocalStore[Local Storage Auth and State]
+  end
+
+  Home --- SharedUI
+  Planner --- SharedUI
+  Learn --- SharedUI
+  Safety --- SharedUI
+  Dashboard --- SharedUI
+
+  Dashboard --- LocalStore
+  Planner --- LocalStore
+  Learn --- LocalStore

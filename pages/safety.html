@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Safety Awareness — ImmigrationIQ</title>
+<link rel="stylesheet" href="../css/global.css"/>
+<style>
+:root {
+  --gold:#FF5D5D;
+  --gold-lt:#FF8A8A;
+  --gold-dk:#A62C2C;
+  --teal:#FFB347;
+  --teal-lt:#FFD08A;
+}
+.page-hero { min-height:46vh; display:flex; align-items:center; padding:140px 60px 60px; background:radial-gradient(ellipse at 40% 60%,rgba(255,93,93,.16),transparent 60%),radial-gradient(ellipse at 80% 20%,rgba(255,179,71,.13),transparent 50%),var(--navy); position:relative; overflow:hidden; }
+.scenario-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
+.sc-card { cursor:pointer; }
+.sc-num { font-family:var(--ff-display); font-size:.68rem; letter-spacing:.1em; color:var(--muted); margin-bottom:18px; }
+.sc-icon { font-size:2rem; margin-bottom:14px; }
+.sc-card h3 { font-size:.98rem; margin-bottom:10px; line-height:1.35; }
+.sc-card p { font-size:.8rem; color:var(--muted); line-height:1.7; }
+/* Scenario detail modal */
+#sc-modal { display:none; position:fixed; inset:0; z-index:700; background:rgba(4,6,15,.95); overflow-y:auto; }
+.sc-modal-inner { max-width:760px; margin:80px auto; padding:0 28px 80px; }
+.sc-modal-back { color:var(--muted); font-size:.85rem; cursor:pointer; display:inline-flex; align-items:center; gap:8px; margin-bottom:32px; transition:color .2s; }
+.sc-modal-back:hover { color:var(--white); }
+.scenario-step { padding:20px 24px; border-radius:12px; border:1px solid; margin-bottom:12px; }
+.step-do { border-color:rgba(16,185,129,.3); background:rgba(16,185,129,.06); }
+.step-dont { border-color:rgba(239,68,68,.3); background:rgba(239,68,68,.06); }
+.step-info { border-color:var(--border2); background:var(--card); }
+.step-label { font-size:.68rem; letter-spacing:.12em; text-transform:uppercase; font-family:var(--ff-display); font-weight:700; margin-bottom:6px; }
+/* Red flags section */
+.redflag-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:40px; }
+.rf-card { padding:22px 24px; border-radius:14px; border:1px solid rgba(239,68,68,.2); background:rgba(239,68,68,.04); }
+.rf-card h4 { font-family:var(--ff-display); font-size:.9rem; color:#EF4444; margin-bottom:8px; }
+.rf-card p { font-size:.8rem; color:var(--muted); line-height:1.6; }
+/* Scam feed */
+.alerts-wrap { display:grid; grid-template-columns:minmax(0,1fr) minmax(280px,360px); gap:22px; align-items:start; margin-top:34px; }
+.alerts-panel { border:1px solid rgba(239,68,68,.25); border-radius:16px; background:linear-gradient(180deg,rgba(239,68,68,.08),rgba(255,255,255,.02)); overflow:hidden; }
+.alerts-head { display:flex; justify-content:space-between; align-items:center; padding:14px 18px; border-bottom:1px solid rgba(255,255,255,.07); }
+.alerts-live { display:inline-flex; align-items:center; gap:8px; font-family:var(--ff-display); font-size:.72rem; letter-spacing:.1em; text-transform:uppercase; color:#ff9f9f; }
+.alerts-dot { width:8px; height:8px; border-radius:50%; background:#ff5d5d; box-shadow:0 0 0 0 rgba(255,93,93,.5); animation:livePulse 1.9s infinite; }
+@keyframes livePulse { 0%{box-shadow:0 0 0 0 rgba(255,93,93,.55)} 70%{box-shadow:0 0 0 12px rgba(255,93,93,0)} 100%{box-shadow:0 0 0 0 rgba(255,93,93,0)} }
+.alerts-time { font-size:.75rem; color:var(--muted); }
+.alerts-list { padding:10px; display:flex; flex-direction:column; gap:8px; max-height:400px; overflow:auto; }
+.alert-item { display:grid; grid-template-columns:auto 1fr auto; gap:12px; align-items:start; background:rgba(5,9,22,.85); border:1px solid var(--border2); border-radius:12px; padding:11px 12px; }
+.alert-icon { width:30px; height:30px; border-radius:8px; display:flex; align-items:center; justify-content:center; background:rgba(239,68,68,.13); color:#ff9e9e; font-size:.94rem; }
+.alert-item h4 { font-size:.84rem; line-height:1.35; margin-bottom:4px; }
+.alert-meta { font-size:.72rem; color:var(--muted); display:flex; gap:10px; flex-wrap:wrap; }
+.alerts-aside { display:flex; flex-direction:column; gap:12px; }
+.alert-note { background:var(--card); border:1px solid var(--border2); border-radius:12px; padding:16px; }
+.alert-note h5 { font-family:var(--ff-display); font-size:.8rem; margin-bottom:6px; }
+.alert-note p { font-size:.76rem; color:var(--muted); line-height:1.6; }
+.risk-badge { font-family:var(--ff-display); font-size:.64rem; letter-spacing:.08em; text-transform:uppercase; border:1px solid; border-radius:99px; padding:4px 8px; white-space:nowrap; }
+.risk-high { color:#ffb0b0; border-color:rgba(239,68,68,.45); background:rgba(239,68,68,.14); }
+.risk-medium { color:#ffd695; border-color:rgba(245,158,11,.45); background:rgba(245,158,11,.14); }
+.risk-low { color:#89e8cc; border-color:rgba(16,185,129,.45); background:rgba(16,185,129,.12); }
+/* Safety score widget */
+.safety-score-ring { width:140px; height:140px; position:relative; }
+@media(max-width:960px){ .scenario-grid{grid-template-columns:1fr 1fr;} .redflag-grid{grid-template-columns:1fr;} .alerts-wrap{grid-template-columns:1fr;} .page-hero{padding:120px 28px 50px;} }
+@media(max-width:600px){ .scenario-grid{grid-template-columns:1fr;} }
+</style>
+</head>
+<body>
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursor-ring"></div>
+<nav class="navbar">
+  <a href="../index.html" class="navbar-logo">Immigration<span>IQ</span></a>
+  <div class="navbar-links">
+    <a href="../index.html">Home</a><a href="planner.html">Planner</a><a href="countries.html">Countries</a>
+    <a href="learn.html">Learn</a><a href="safety.html">Safety</a><a href="dashboard.html">Dashboard</a>
+    <a href="login.html" class="navbar-auth-link" data-auth="guest">Log In</a>
+    <a href="signup.html" class="navbar-auth-link navbar-auth-signup" data-auth="guest">Sign Up</a>
+    <a href="dashboard.html" class="navbar-auth-user" data-auth="user" hidden><span class="navbar-user-avatar" data-auth-avatar>IQ</span><span class="navbar-user-name" data-auth-name>Account</span></a>
+    <button type="button" class="navbar-auth-logout" data-auth="user" data-auth-logout data-auth-redirect="../index.html" hidden>Log Out</button>
+    <a href="planner.html" class="navbar-cta">Get Started →</a>
+  </div>
+  <button class="hamburger"><span></span><span></span><span></span></button>
+</nav>
+
+<section class="page-hero">
+  <div style="max-width:1320px;margin:0 auto;width:100%;display:grid;grid-template-columns:1fr auto;gap:40px;align-items:center;">
+    <div>
+      <span class="tag">Safety Awareness Training</span>
+      <h1>Stay Safe <span style="color:#EF4444">Abroad</span></h1>
+      <p class="lead" style="margin-top:16px;max-width:600px;">Scenario-based guidance for real situations immigrants face — from scam recognition to emergency handling and workplace exploitation.</p>
+      <div style="display:flex;gap:14px;margin-top:32px;flex-wrap:wrap;">
+        <a href="#scenarios" class="btn btn-gold">Explore Scenarios</a>
+        <a href="#red-flags" class="btn btn-ghost">Red Flag Guide</a>
+      </div>
+    </div>
+    <!-- Safety score widget -->
+    <div style="text-align:center;padding:32px 40px;background:rgba(239,68,68,.05);border:1px solid rgba(239,68,68,.2);border-radius:20px;">
+      <div style="font-size:3rem;margin-bottom:12px;">🛡️</div>
+      <div style="font-family:var(--ff-display);font-size:2.5rem;font-weight:800;color:#EF4444;">8/10</div>
+      <div style="font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:4px;">Safety Readiness</div>
+      <div class="progress-track" style="margin-top:14px;"><div class="progress-fill" data-value="80" style="background:#EF4444;width:0"></div></div>
+      <div style="font-size:.75rem;color:var(--muted);margin-top:10px;">Complete all scenarios to improve</div>
+    </div>
+  </div>
+</section>
+
+<!-- SCENARIOS -->
+<section class="section" id="scenarios">
+  <div class="container">
+    <div style="margin-bottom:48px;">
+      <span class="tag">Real Scenarios</span>
+      <h2>What Would <span class="grad-gold">You Do?</span></h2>
+      <p class="lead" style="margin-top:12px;max-width:620px;">Click any scenario to learn how to identify risks and respond correctly. Based on real situations faced by immigrants worldwide.</p>
+    </div>
+    <div class="scenario-grid" data-stagger>
+
+      <div class="card card-tilt sc-card reveal" onclick="openScenario(0)">
+        <div class="sc-num">SCENARIO 01</div><div class="sc-icon">🎭</div>
+        <span class="badge badge-red" style="margin-bottom:12px;">High Risk</span>
+        <h3>Visa Agent Promises Guaranteed Approval</h3>
+        <p>A man contacts you offering a guaranteed student visa with 100% approval rate for a fee. He asks for your passport upfront. What do you do?</p>
+      </div>
+
+      <div class="card card-tilt sc-card reveal" onclick="openScenario(1)">
+        <div class="sc-num">SCENARIO 02</div><div class="sc-icon">💼</div>
+        <span class="badge badge-gold" style="margin-bottom:12px;">Medium Risk</span>
+        <h3>Employer Asks You to Work Cash-in-Hand Off the Books</h3>
+        <p>Your employer offers more hours for cash payment with no contract, saying "it's easier for everyone." What are the risks?</p>
+      </div>
+
+      <div class="card card-tilt sc-card reveal" onclick="openScenario(2)">
+        <div class="sc-num">SCENARIO 03</div><div class="sc-icon">🏠</div>
+        <span class="badge badge-red" style="margin-bottom:12px;">High Risk</span>
+        <h3>Landlord Asks for Rent in Cash with No Contract</h3>
+        <p>You find a cheap apartment but the landlord says no contract is needed and wants cash only. He seems friendly. Is this safe?</p>
+      </div>
+
+      <div class="card card-tilt sc-card reveal" onclick="openScenario(3)">
+        <div class="sc-num">SCENARIO 04</div><div class="sc-icon">🚔</div>
+        <span class="badge badge-gold" style="margin-bottom:12px;">Medium Risk</span>
+        <h3>Police Stop — You Don't Have Documents on You</h3>
+        <p>You are stopped by police in your destination country and don't have your passport or residence permit with you. What should you do?</p>
+      </div>
+
+      <div class="card card-tilt sc-card reveal" onclick="openScenario(4)">
+        <div class="sc-num">SCENARIO 05</div><div class="sc-icon">💻</div>
+        <span class="badge badge-red" style="margin-bottom:12px;">High Risk</span>
+        <h3>Phishing Email Claiming to Be from USCIS/IRCC</h3>
+        <p>You receive an email from "USCIS-notifications@immigration-gov.net" asking you to confirm your details urgently to avoid visa cancellation.</p>
+      </div>
+
+      <div class="card card-tilt sc-card reveal" onclick="openScenario(5)">
+        <div class="sc-num">SCENARIO 06</div><div class="sc-icon">🏥</div>
+        <span class="badge badge-green" style="margin-bottom:12px;">Preparedness</span>
+        <h3>Medical Emergency — You Don't Speak the Language</h3>
+        <p>You experience a severe allergic reaction but don't speak the local language and don't know the emergency number. What do you do?</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- RED FLAGS -->
+<section class="section" id="red-flags" style="background:var(--navy);">
+  <div class="container">
+    <span class="tag">Warning Signs</span>
+    <h2>Common <span style="color:#EF4444;">Red Flags</span> to Watch For</h2>
+    <p class="lead" style="margin-top:12px;max-width:620px;margin-bottom:0">Recognizing these patterns protects you from exploitation and fraud.</p>
+    <div class="redflag-grid" data-stagger>
+      <div class="rf-card reveal"><h4>🚩 "Guaranteed Visa" Promises</h4><p>No legitimate agent can guarantee visa approval. Government authorities make all decisions. Any guarantee is a scam.</p></div>
+      <div class="rf-card reveal"><h4>🚩 Upfront Cash Payments</h4><p>Legitimate services provide receipts and contracts. Requests for large cash payments with no documentation are red flags.</p></div>
+      <div class="rf-card reveal"><h4>🚩 Requests for Passport Originals</h4><p>Never hand over your original passport to a third party. Only immigration officials and banks may request this under specific circumstances.</p></div>
+      <div class="rf-card reveal"><h4>🚩 Urgent Pressure Tactics</h4><p>"You must act NOW or lose your visa" is a pressure tactic. Legitimate immigration processes have standard timelines.</p></div>
+      <div class="rf-card reveal"><h4>🚩 Work Without Contracts</h4><p>Always insist on a written employment contract. Working without one leaves you with no legal protection.</p></div>
+      <div class="rf-card reveal"><h4>🚩 Unregistered Accommodation</h4><p>Always sign a tenancy agreement. Unregistered rentals leave you vulnerable to eviction without notice and loss of deposit.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- SCAM ALERT FEED -->
+<section class="section" id="scam-feed" style="background:linear-gradient(180deg,rgba(80,9,9,.14),rgba(8,10,22,.85));">
+  <div class="container">
+    <span class="tag">Fraud Watchdesk</span>
+    <h2>Live Scam <span style="color:#EF4444;">Alert Feed</span></h2>
+    <p class="lead" style="margin-top:12px;max-width:740px;">Stay ahead of fake immigration agents, phishing emails, and forged appointment messages. Alerts are tagged by risk and verification source.</p>
+
+    <div class="alerts-wrap" data-stagger>
+      <div class="alerts-panel reveal">
+        <div class="alerts-head">
+          <div class="alerts-live"><span class="alerts-dot"></span>Live Verified Reports</div>
+          <div class="alerts-time" id="alerts-last-updated">Updated just now</div>
+        </div>
+        <div class="alerts-list" id="alerts-feed"></div>
+      </div>
+
+      <div class="alerts-aside reveal right" style="transition-delay:.08s;">
+        <div class="alert-note">
+          <h5>How Verification Works</h5>
+          <p>Reports are cross-checked using official embassy notices, government advisories, and moderator-reviewed user submissions before visibility.</p>
+        </div>
+        <div class="alert-note">
+          <h5>Action Rule</h5>
+          <p>If an alert is marked <span class="risk-badge risk-high">High</span>, stop all payment or document sharing until verified through the official immigration portal.</p>
+        </div>
+        <div class="alert-note">
+          <h5>Safety Tip</h5>
+          <p>Never pay through gift cards, personal wallets, or messaging apps. Legitimate immigration fees use official channels and receipts.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- EMERGENCY CHECKLIST -->
+<section class="section">
+  <div class="container">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:start;">
+      <div>
+        <span class="tag">Before You Move</span>
+        <h2>Emergency <span class="grad-gold">Preparation Checklist</span></h2>
+        <p class="lead" style="margin-top:14px;margin-bottom:28px;">Complete these steps before arriving in your destination country.</p>
+        <div style="display:flex;flex-direction:column;gap:10px;" data-stagger>
+          <div class="checklist-item plan-section" style="padding:14px 18px;"><div class="check-icon check-done">✓</div><span style="font-size:.85rem;">Save police, ambulance, and fire numbers in your phone and on a paper card.</span></div>
+          <div class="checklist-item plan-section" style="padding:14px 18px;"><div class="check-icon check-done">✓</div><span style="font-size:.85rem;">Register with your embassy or consulate emergency service where available.</span></div>
+          <div class="checklist-item plan-section" style="padding:14px 18px;"><div class="check-icon check-done">✓</div><span style="font-size:.85rem;">Keep digital and printed copies of passport, visa, insurance, and key IDs.</span></div>
+          <div class="checklist-item plan-section" style="padding:14px 18px;"><div class="check-icon check-todo">!</div><span style="font-size:.85rem;">Buy health insurance that includes emergency hospital care and evacuation.</span></div>
+          <div class="checklist-item plan-section" style="padding:14px 18px;"><div class="check-icon check-todo">!</div><span style="font-size:.85rem;">Set one trusted emergency contact and share your new address and route details.</span></div>
+          <div class="checklist-item plan-section" style="padding:14px 18px;"><div class="check-icon check-todo">○</div><span style="font-size:.85rem;">Download offline maps, translation packs, and local transit routes before travel.</span></div>
+          <div class="checklist-item plan-section" style="padding:14px 18px;"><div class="check-icon check-todo">○</div><span style="font-size:.85rem;">Carry a local-language medical info card (allergies, medications, blood group).</span></div>
+        </div>
+      </div>
+      <div style="padding:36px;background:rgba(239,68,68,.05);border:1px solid rgba(239,68,68,.18);border-radius:20px;">
+        <div style="font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:#EF4444;font-family:var(--ff-display);font-weight:600;margin-bottom:18px;">📞 Universal Emergency Numbers</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:.84rem;"><span style="color:var(--muted);">United States</span><span style="font-family:var(--ff-display);font-weight:700;color:#EF4444;">911</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:.84rem;"><span style="color:var(--muted);">United Kingdom</span><span style="font-family:var(--ff-display);font-weight:700;color:#EF4444;">999 / 112</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:.84rem;"><span style="color:var(--muted);">Canada</span><span style="font-family:var(--ff-display);font-weight:700;color:#EF4444;">911</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:.84rem;"><span style="color:var(--muted);">Australia</span><span style="font-family:var(--ff-display);font-weight:700;color:#EF4444;">000</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:.84rem;"><span style="color:var(--muted);">Germany</span><span style="font-family:var(--ff-display);font-weight:700;color:#EF4444;">110 / 112</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:.84rem;"><span style="color:var(--muted);">Japan</span><span style="font-family:var(--ff-display);font-weight:700;color:#EF4444;">110 / 119</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:.84rem;"><span style="color:var(--muted);">Singapore</span><span style="font-family:var(--ff-display);font-weight:700;color:#EF4444;">999 / 995</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:.84rem;"><span style="color:var(--muted);">UAE</span><span style="font-family:var(--ff-display);font-weight:700;color:#EF4444;">999 / 998</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:11px 0;font-size:.84rem;"><span style="color:var(--muted);">European Union</span><span style="font-family:var(--ff-display);font-weight:700;color:#EF4444;">112</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SCENARIO MODAL -->
+<div id="sc-modal">
+  <div class="sc-modal-inner">
+    <div class="sc-modal-back" onclick="closeScenario()">← Back to Scenarios</div>
+    <div id="sc-modal-content"></div>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="footer-brand">Immigration<span style="color:var(--gold)">IQ</span></div>
+  <div class="footer-links"><a href="../index.html">Home</a><a href="planner.html">Planner</a><a href="learn.html">Learn</a><a href="dashboard.html">Dashboard</a></div>
+  <div class="footer-copy">© 2025 ImmigrationIQ</div>
+</footer>
+
+<script src="../js/shared.js"></script>
+<script>
+const ALERTS = [
+  { title:'Fake Job Sponsorship Letters Shared in Messaging Groups', region:'UAE corridor', channel:'Community + Embassy', risk:'high', ago:'3m ago' },
+  { title:'Phishing Site Mimicking Visa Fee Portal', region:'Canada applicants', channel:'Government advisory', risk:'high', ago:'8m ago' },
+  { title:'Unlicensed Agent Requesting Cash-Only Medical Booking', region:'UK route', channel:'User verified', risk:'medium', ago:'14m ago' },
+  { title:'Forged Biometric Appointment SMS Circulating', region:'Schengen routes', channel:'Embassy bulletin', risk:'medium', ago:'22m ago' },
+  { title:'Suspicious "Guaranteed Approval" Ads Flagged', region:'Australia track', channel:'Moderator review', risk:'low', ago:'31m ago' }
+];
+
+function initScamFeed(){
+  const feedEl = document.getElementById('alerts-feed');
+  const updatedEl = document.getElementById('alerts-last-updated');
+  if(!feedEl || !updatedEl) return;
+
+  function riskClass(level){
+    if(level === 'high') return 'risk-badge risk-high';
+    if(level === 'medium') return 'risk-badge risk-medium';
+    return 'risk-badge risk-low';
+  }
+
+  function riskLabel(level){
+    return level.charAt(0).toUpperCase() + level.slice(1) + ' Risk';
+  }
+
+  function renderAlerts(list){
+    feedEl.innerHTML = list.map(item => `
+      <article class="alert-item reveal visible">
+        <div class="alert-icon">⚠</div>
+        <div>
+          <h4>${item.title}</h4>
+          <div class="alert-meta">
+            <span>${item.region}</span>
+            <span>Verified: ${item.channel}</span>
+            <span>${item.ago}</span>
+          </div>
+        </div>
+        <span class="${riskClass(item.risk)}">${riskLabel(item.risk)}</span>
+      </article>
+    `).join('');
+  }
+
+  renderAlerts(ALERTS);
+
+  let minutes = 0;
+  setInterval(()=>{
+    minutes += 1;
+    updatedEl.textContent = `Updated ${minutes} min ago`;
+  }, 60000);
+
+  const samples = [
+    { title:'Impersonation Email Asking for Passport Scan', region:'Global', channel:'Community + Moderator', risk:'high', ago:'just now' },
+    { title:'Unauthorized Agent Promoting "Priority Slot" Payments', region:'India to EU route', channel:'User verified', risk:'medium', ago:'just now' },
+    { title:'Fake Scholarship Visa Form Circulating on Social Media', region:'Canada student track', channel:'Moderator review', risk:'low', ago:'just now' }
+  ];
+
+  setInterval(()=>{
+    ALERTS.unshift(samples[Math.floor(Math.random() * samples.length)]);
+    ALERTS.splice(6);
+    renderAlerts(ALERTS);
+  }, 26000);
+}
+
+initScamFeed();
+
+const SCENARIOS = [
+  { title:'Visa Agent Promises Guaranteed Approval', icon:'🎭', risk:'HIGH',
+    situation:'A man contacts you online offering a "guaranteed" student visa with a 100% approval rate. He charges $800 upfront and asks for your passport to "submit the application." He has many positive reviews on a website you\'ve never heard of.',
+    steps:[
+      {type:'dont',label:'❌ DO NOT',text:'Never pay large sums to unofficial agents claiming guaranteed results. No agent can guarantee visa approval — only governments decide.'},
+      {type:'dont',label:'❌ DO NOT',text:'Never hand over your original passport to a third party unless explicitly required by an official embassy or government authority.'},
+      {type:'do',label:'✅ DO THIS',text:'Verify the agent\'s accreditation on official government websites (e.g., OISC in the UK, ICCRC in Canada, or AIRC-recognized in the US).'},
+      {type:'do',label:'✅ DO THIS',text:'Apply directly through official embassy websites. Many visas can be applied for without any agent involvement.'},
+      {type:'info',label:'ℹ️ KNOW THIS',text:'Legitimate visa consultants do not guarantee results and are registered with official regulatory bodies. Always verify registration numbers.'},
+    ],
+    outcome:'If you had proceeded, you would have lost $800 and your passport may have been used for identity fraud. Always apply through official channels.'
+  },
+  { title:'Employer Asks for Cash-in-Hand Work', icon:'💼', risk:'MEDIUM',
+    situation:'Your employer offers you extra shifts "cash-in-hand" off the books. He says it\'s easier, you\'ll pay less tax, and "everyone does it." He implies that if you complain, your visa might be reviewed.',
+    steps:[
+      {type:'dont',label:'❌ DO NOT',text:'Never work cash-in-hand without documentation. This is unauthorized employment and can constitute a visa violation, regardless of who suggested it.'},
+      {type:'dont',label:'❌ DO NOT',text:'Do not be intimidated by immigration threats. Employers threatening to report you to immigration authorities for refusing illegal work are themselves breaking the law.'},
+      {type:'do',label:'✅ DO THIS',text:'Report labor violations to the national labor authority. In most countries, your immigration status is protected when making a labor complaint.'},
+      {type:'do',label:'✅ DO THIS',text:'Document everything — save messages, emails, and payslips as evidence of any violations.'},
+      {type:'info',label:'ℹ️ KNOW THIS',text:'Working without authorization — even at your employer\'s request — is YOUR visa violation. You bear the immigration consequences.'},
+    ],
+    outcome:'Unauthorized work can lead to immediate visa cancellation, deportation, and re-entry bans. Never risk your immigration status for an employer\'s convenience.'
+  },
+  { title:'Landlord Requests Cash Rent, No Contract', icon:'🏠', risk:'HIGH',
+    situation:'You find an affordable apartment. The landlord seems friendly and says the paperwork is too complicated. He wants cash every month with no tenancy agreement. You need housing urgently.',
+    steps:[
+      {type:'dont',label:'❌ DO NOT',text:'Never rent a property without a signed tenancy agreement. Without one, you have no legal protection if you are evicted or your deposit is stolen.'},
+      {type:'dont',label:'❌ DO NOT',text:'Do not pay large cash deposits without a receipt and signed contract. This money is extremely difficult to recover without documentation.'},
+      {type:'do',label:'✅ DO THIS',text:'Insist on a written tenancy agreement before making any payment. A legitimate landlord will provide this — it protects both parties.'},
+      {type:'do',label:'✅ DO THIS',text:'Research standard rent prices in the area. Prices significantly below market rate often signal fraudulent listings.'},
+      {type:'info',label:'ℹ️ KNOW THIS',text:'In many countries, proof of address (tenancy agreement) is required for bank accounts, visa renewals, and GP registration. A cash-only arrangement leaves you administratively invisible.'},
+    ],
+    outcome:'Without a contract, you have no legal recourse if evicted, deposit stolen, or if the landlord claims you never lived there.'
+  },
+  { title:'Police Stop Without Documents', icon:'🚔', risk:'MEDIUM',
+    situation:'You are stopped by police while walking to work. You left your Residence Card at home. The officer asks for identification.',
+    steps:[
+      {type:'info',label:'ℹ️ KNOW THIS',text:'In most countries you are required to carry identification. Some countries require carrying your Residence Card (Japan, Germany) while others do not (UK, US for most situations).'},
+      {type:'do',label:'✅ DO THIS',text:'Remain calm and cooperative. Provide your name and address. Explain politely that your documents are at home and offer to retrieve them or have someone bring them.'},
+      {type:'do',label:'✅ DO THIS',text:'Know your rights: in most countries, you have the right to know why you are being stopped and the right to remain silent on questions beyond basic identification.'},
+      {type:'do',label:'✅ DO THIS',text:'Contact your embassy if you feel you are being treated unlawfully or if detained. Save consular emergency numbers in your phone before you arrive.'},
+      {type:'dont',label:'❌ AVOID',text:'Do not argue aggressively or attempt to leave without permission. Cooperate first, then seek legal advice if you believe your rights were violated.'},
+    ],
+    outcome:'Carrying a photocopy of all documents is best practice. Know the rules in your specific country — some require originals, others accept a photo on your phone.'
+  },
+  { title:'Phishing Email from Fake Immigration Authority', icon:'💻', risk:'HIGH',
+    situation:'You receive an urgent email from "USCIS-notifications@immigration-gov.net" claiming your visa will be cancelled in 48 hours unless you confirm your passport details and pay a $250 "status fee" by clicking a link.',
+    steps:[
+      {type:'dont',label:'❌ DO NOT',text:'Do not click any links in the email or provide any personal or financial information. This is a phishing scam.'},
+      {type:'dont',label:'❌ DO NOT',text:'Do not pay any fees via email links. USCIS, IRCC, and all official immigration authorities never collect fees this way.'},
+      {type:'do',label:'✅ VERIFY',text:'Check the sender email carefully. Official USCIS emails come from @uscis.dhs.gov only. Official IRCC emails come from @cic.gc.ca only.'},
+      {type:'do',label:'✅ DO THIS',text:'Report the phishing email to the official immigration authority and to your email provider. This protects other immigrants from the same scam.'},
+      {type:'info',label:'ℹ️ KNOW THIS',text:'Immigration authorities never communicate visa cancellations by email with payment links. Any such communication will be through official portals or physical mail.'},
+    ],
+    outcome:'Thousands of immigrants lose money and identity information to immigration phishing scams annually. Always verify through official websites by typing the URL directly into your browser.'
+  },
+  { title:'Medical Emergency Without Language Skills', icon:'🏥', risk:'PREPAREDNESS',
+    situation:'You experience a severe allergic reaction at a restaurant. You cannot speak the local language and do not know the emergency number. You are alone.',
+    steps:[
+      {type:'do',label:'✅ STEP 1',text:'Show your phone screen to nearby people with the universal emergency number (112 works in most countries including all EU nations). Point to your throat if you have difficulty breathing.'},
+      {type:'do',label:'✅ STEP 2',text:'Use Google Translate offline mode or a translation app to communicate your condition to others. Prepare a medical alert card in the local language before going out.'},
+      {type:'do',label:'✅ STEP 3',text:'If you have a known allergy, carry a medical alert bracelet or a translation card with your condition, medications, and emergency contact in the local language.'},
+      {type:'do',label:'✅ STEP 4',text:'In hospital, you have the right to request an interpreter. Medical staff in most countries are trained to access interpretation services.'},
+      {type:'info',label:'ℹ️ PREPARE',text:'Before arrival: save emergency contacts, download offline translation apps, create a medical info card in the local language, and register with a local GP in your first week.'},
+    ],
+    outcome:'Preparation is your best protection. Create a medical card, save emergency numbers, and download offline translation before every trip.'
+  },
+];
+
+function openScenario(idx){
+  const s=SCENARIOS[idx];
+  const riskColor={'HIGH':'#EF4444','MEDIUM':'#F59E0B','PREPAREDNESS':'#10B981'}[s.risk]||'var(--gold)';
+  const stepTypes={do:'step-do',dont:'step-dont',info:'step-info'};
+  document.getElementById('sc-modal-content').innerHTML=`
+    <div style="display:flex;gap:16px;align-items:flex-start;margin-bottom:28px;">
+      <div style="font-size:3rem;">${s.icon}</div>
+      <div>
+        <span class="badge" style="background:${riskColor}22;color:${riskColor};border-color:${riskColor}44;margin-bottom:10px;">${s.risk} RISK</span>
+        <h2 style="font-size:1.6rem;">${s.title}</h2>
+      </div>
+    </div>
+    <div style="padding:20px 24px;border-radius:14px;border:1px solid var(--border2);background:var(--card);margin-bottom:28px;">
+      <div style="font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--teal);font-family:var(--ff-display);font-weight:600;margin-bottom:10px;">THE SITUATION</div>
+      <p style="font-size:.9rem;line-height:1.8;color:var(--muted);">${s.situation}</p>
+    </div>
+    <div style="margin-bottom:24px;">${s.steps.map(st=>`
+      <div class="scenario-step ${stepTypes[st.type]||'step-info'}">
+        <div class="step-label" style="color:${st.type==='do'?'#10B981':st.type==='dont'?'#EF4444':'var(--teal)'}">${st.label}</div>
+        <p style="font-size:.86rem;color:var(--muted);margin:0;line-height:1.7;">${st.text}</p>
+      </div>`).join('')}</div>
+    <div style="padding:20px 24px;border-radius:14px;border:1px solid rgba(212,168,67,.25);background:rgba(212,168,67,.06);">
+      <div style="font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);font-family:var(--ff-display);font-weight:600;margin-bottom:8px;">OUTCOME IF IGNORED</div>
+      <p style="font-size:.86rem;color:var(--muted);margin:0;line-height:1.7;">${s.outcome}</p>
+    </div>
+    <div style="display:flex;gap:12px;margin-top:28px;flex-wrap:wrap;">
+      <a href="learn.html" class="btn btn-gold btn-sm">Learn More in Hub →</a>
+      <button class="btn btn-ghost btn-sm" onclick="closeScenario()">Back to Scenarios</button>
+    </div>`;
+  document.getElementById('sc-modal').style.display='block';
+  document.body.style.overflow='hidden';
+  document.getElementById('sc-modal').scrollTo(0,0);
+}
+
+function closeScenario(){
+  document.getElementById('sc-modal').style.display='none';
+  document.body.style.overflow='';
+}
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeScenario(); });
+</script>
+</body>
+</html>

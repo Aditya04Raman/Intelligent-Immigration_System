@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Log In — ImmigrationIQ</title>
+<link rel="stylesheet" href="../css/global.css"/>
+<style>
+:root {
+  --gold:#69A8FF;
+  --gold-lt:#9DC7FF;
+  --gold-dk:#2E5FA8;
+  --teal:#2CF2D4;
+  --teal-lt:#7CFFE9;
+}
+.auth-shell {
+  min-height:100vh; padding:120px 28px 60px; display:grid; place-items:center; position:relative; overflow:hidden;
+  background:
+    radial-gradient(circle at 18% 20%, rgba(44,242,212,.2), transparent 30%),
+    radial-gradient(circle at 84% 18%, rgba(105,168,255,.19), transparent 26%),
+    linear-gradient(180deg, rgba(8,14,36,.98), rgba(4,6,15,1));
+}
+.auth-shell::before {
+  content:''; position:absolute; inset:0; pointer-events:none;
+  background:linear-gradient(90deg, rgba(255,255,255,.02) 0, rgba(255,255,255,0) 14%, rgba(255,255,255,.02) 28%, rgba(255,255,255,0) 42%, rgba(255,255,255,.02) 56%, rgba(255,255,255,0) 70%, rgba(255,255,255,.02) 84%, rgba(255,255,255,0) 100%);
+  opacity:.22;
+}
+.auth-grid { width:min(1120px,100%); display:grid; grid-template-columns:minmax(0,1.05fr) minmax(360px,460px); gap:28px; align-items:stretch; position:relative; z-index:2; }
+.auth-panel {
+  padding:48px; border-radius:28px; border:1px solid rgba(255,255,255,.08); background:rgba(255,255,255,.03);
+  backdrop-filter:blur(20px);
+}
+.auth-panel h1 { max-width:9ch; }
+.auth-panel p.lead { max-width:56ch; margin-top:18px; }
+.auth-benefits { display:grid; gap:16px; margin-top:36px; }
+.auth-benefit { padding:18px 20px; border-radius:16px; border:1px solid rgba(255,255,255,.07); background:rgba(4,6,15,.34); }
+.auth-benefit strong { display:block; font-family:var(--ff-display); font-size:.95rem; margin-bottom:6px; }
+.auth-card {
+  padding:38px; border-radius:28px; border:1px solid rgba(212,168,67,.16);
+  background:linear-gradient(180deg, rgba(12,20,48,.94), rgba(4,6,15,.98)); box-shadow:0 28px 70px rgba(0,0,0,.42);
+  position:relative; overflow:hidden;
+}
+.auth-card::before {
+  content:''; position:absolute; inset:0 0 auto 0; height:3px; background:linear-gradient(90deg,var(--teal),var(--gold));
+}
+.auth-card h2 { font-size:1.5rem; margin-bottom:10px; }
+.auth-copy { color:var(--muted); font-size:.92rem; margin-bottom:28px; }
+.auth-form { display:grid; gap:16px; }
+.auth-actions { display:grid; gap:12px; margin-top:8px; }
+.auth-submit {
+  width:100%; padding:15px 18px; border-radius:10px; background:var(--gold); color:var(--deep);
+  font-family:var(--ff-display); font-size:.92rem; font-weight:800; transition:transform .25s, box-shadow .25s, background .25s;
+}
+.auth-submit:hover { background:var(--gold-lt); transform:translateY(-1px); box-shadow:0 12px 28px rgba(212,168,67,.28); }
+.auth-switch { margin-top:18px; font-size:.86rem; color:var(--muted); }
+.auth-switch a { color:var(--gold); }
+.auth-feedback {
+  min-height:24px; font-size:.82rem; font-weight:600; letter-spacing:.02em;
+}
+.auth-feedback.error { color:#F87171; }
+.auth-feedback.success { color:var(--teal); }
+@media(max-width:960px){
+  .auth-grid { grid-template-columns:1fr; }
+  .auth-panel { padding:32px; }
+  .auth-card { padding:30px; }
+}
+</style>
+</head>
+<body>
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursor-ring"></div>
+<nav class="navbar">
+  <a href="../index.html" class="navbar-logo">Immigration<span>IQ</span></a>
+  <div class="navbar-links">
+    <a href="../index.html">Home</a>
+    <a href="planner.html">Planner</a>
+    <a href="countries.html">Countries</a>
+    <a href="learn.html">Learn</a>
+    <a href="safety.html">Safety</a>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="login.html" class="navbar-auth-link" data-auth="guest">Log In</a>
+    <a href="signup.html" class="navbar-auth-link navbar-auth-signup" data-auth="guest">Sign Up</a>
+    <a href="dashboard.html" class="navbar-auth-user" data-auth="user" hidden><span class="navbar-user-avatar" data-auth-avatar>IQ</span><span class="navbar-user-name" data-auth-name>Account</span></a>
+    <button type="button" class="navbar-auth-logout" data-auth="user" data-auth-logout data-auth-redirect="../index.html" hidden>Log Out</button>
+    <a href="planner.html" class="navbar-cta">Get Started →</a>
+  </div>
+  <button class="hamburger"><span></span><span></span><span></span></button>
+</nav>
+
+<section class="auth-shell">
+  <div class="auth-grid">
+    <div class="auth-panel reveal visible">
+      <span class="tag">Member Access</span>
+      <h1>Pick up your immigration plan exactly where you left it.</h1>
+      <p class="lead">Sign in to keep your planner progress, country research, and learning history available across pages.</p>
+      <div class="auth-benefits">
+        <div class="auth-benefit">
+          <strong>Saved planning progress</strong>
+          Resume checklists, document prep, and route decisions without rebuilding your profile.
+        </div>
+        <div class="auth-benefit">
+          <strong>Country research in one place</strong>
+          Keep destination guides and safety notes tied to your dashboard.
+        </div>
+        <div class="auth-benefit">
+          <strong>Fast local demo auth</strong>
+          This project stores your signed-in state in the browser for a simple front-end auth flow.
+        </div>
+      </div>
+    </div>
+
+    <div class="auth-card reveal visible">
+      <h2>Log in</h2>
+      <p class="auth-copy">Use any email and password for the demo flow.</p>
+      <form id="login-form" class="auth-form">
+        <div class="form-group">
+          <label class="form-label" for="login-email">Email</label>
+          <input class="form-input" id="login-email" name="email" type="email" placeholder="you@example.com" required/>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="login-password">Password</label>
+          <input class="form-input" id="login-password" name="password" type="password" placeholder="Enter password" minlength="6" required/>
+        </div>
+        <div id="login-feedback" class="auth-feedback" aria-live="polite"></div>
+        <div class="auth-actions">
+          <button class="auth-submit" type="submit">Continue to Dashboard</button>
+        </div>
+      </form>
+      <div class="auth-switch">Need an account? <a href="signup.html">Create one here</a>.</div>
+    </div>
+  </div>
+</section>
+
+<script src="../js/shared.js"></script>
+<script>
+(function(){
+  const api=window.ImmigrationIQApi;
+  const existing=window.ImmigrationIQAuth && window.ImmigrationIQAuth.getAuthState();
+  if(existing){
+    window.location.href='dashboard.html';
+    return;
+  }
+
+  const form=document.getElementById('login-form');
+  const feedback=document.getElementById('login-feedback');
+  form.addEventListener('submit',async event=>{
+    event.preventDefault();
+    const formData=new FormData(form);
+    const email=(formData.get('email') || '').toString().trim();
+    const password=(formData.get('password') || '').toString();
+    if(!email || !password){
+      feedback.textContent='Email and password are required.';
+      feedback.className='auth-feedback error';
+      return;
+    }
+
+    feedback.textContent='Signing you in...';
+    feedback.className='auth-feedback';
+
+    try {
+      const result=await api.demoLogin(email, password);
+      const user=result && result.user ? result.user : null;
+      const fallbackName=email
+        .split('@')[0]
+        .split(/[._-]/)
+        .filter(Boolean)
+        .map(part=>part[0].toUpperCase()+part.slice(1))
+        .join(' ') || 'ImmigrationIQ User';
+      const name=(user && user.name) || fallbackName;
+      const resolvedEmail=(user && user.email) || email;
+
+      window.ImmigrationIQAuth.setAuthState({
+        id: user && user.id ? user.id : undefined,
+        name,
+        email: resolvedEmail
+      });
+
+      feedback.textContent='Signed in. Redirecting to your dashboard...';
+      feedback.className='auth-feedback success';
+      setTimeout(()=>{ window.location.href='dashboard.html'; }, 450);
+    } catch (error) {
+      const status=error && error.status ? error.status : 0;
+      if(status===401){
+        feedback.textContent='Invalid email or password.';
+      } else {
+        feedback.textContent=error && error.message ? error.message : 'Login failed. Please try again.';
+      }
+      feedback.className='auth-feedback error';
+    }
+  });
+})();
+</script>
+</body>
+</html>
